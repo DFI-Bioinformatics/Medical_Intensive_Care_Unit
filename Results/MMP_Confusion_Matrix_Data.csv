@@ -1,0 +1,23 @@
+"","Prediction","Actual","Freq","V1"
+"...1","Survivor","Survivor",42,NA
+"...2","Non-Survivor","Survivor",60,NA
+"...3","Survivor","Non-Survivor",8,NA
+"...4","Non-Survivor","Non-Survivor",37,NA
+"Accuracy",NA,NA,NA,0.537414965986395
+"Kappa",NA,NA,NA,0.176877470355731
+"AccuracyLower",NA,NA,NA,0.453367897870313
+"AccuracyUpper",NA,NA,NA,0.619923669251133
+"AccuracyNull",NA,NA,NA,0.693877551020408
+"AccuracyPValue",NA,NA,NA,0.999975954411836
+"McnemarPValue",NA,NA,NA,6.22370771479232e-10
+"Sensitivity",NA,NA,NA,0.411764705882353
+"Specificity",NA,NA,NA,0.822222222222222
+"Pos Pred Value",NA,NA,NA,0.84
+"Neg Pred Value",NA,NA,NA,0.381443298969072
+"Precision",NA,NA,NA,0.84
+"Recall",NA,NA,NA,0.411764705882353
+"F1",NA,NA,NA,0.552631578947368
+"Prevalence",NA,NA,NA,0.693877551020408
+"Detection Rate",NA,NA,NA,0.285714285714286
+"Detection Prevalence",NA,NA,NA,0.340136054421769
+"Balanced Accuracy",NA,NA,NA,0.616993464052288
