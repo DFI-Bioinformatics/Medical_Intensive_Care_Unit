@@ -1,7 +1,8 @@
 # Medical_Intensive_Care_Unit
  Code and Data from the University of Chicago Medical Intensive Care Unit (MICU) Study
 
-[![DOI](https://zenodo.org/badge/601706581.svg)](https://zenodo.org/doi/10.5281/zenodo.11660451)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.12707359.svg)](https://doi.org/10.5281/zenodo.12707359)
+
 
 ----
 
@@ -27,7 +28,7 @@ Results Folder Results - Contains all produced figures from the analysis
 
 To download the data there are two options available.
 
-Option A) Download the zipped file at: https://zenodo.org/doi/10.5281/zenodo.11660451
+Option A) Download the zipped file at: [https://zenodo.org/doi/10.5281/zenodo.11660451](https://zenodo.org/records/12707359)
 
 Option B) Enable Git Large File Storage:
 
