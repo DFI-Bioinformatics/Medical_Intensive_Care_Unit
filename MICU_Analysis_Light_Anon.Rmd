@@ -21,8 +21,6 @@ header-includes:
       showtabs = false,
       breaklines,
       commandchars=\\\{\}
-    }
-    ```
 ---
 
 # {.tabset}
@@ -125,7 +123,7 @@ shelf(
 # color palette
 devtools::source_url("https://github.com/yingeddi2008/DFIutility/blob/master/getRdpPal.R?raw=TRUE")
 
-say(
+cowsay::say(
   "Fun microbiome analysis is. Hmmm.",
   by = "yoda",
   what_color = "black",
@@ -155,16 +153,7 @@ load("./Data/MICU_Data_Anon.RData")
 first_samp_list_anon <- readRDS("./Data/first_samp_list_anon.rds")
 
 # Load in clinical variables
-micu_new_anon <- readRDS("./Data/micu_new_anon.rds") %>%
-  mutate(
-    thirtyday_mortality_overall = factor(
-      thirtyday_mortality_overall,
-      levels = c("Survivor", "Non-Survivor")
-    ),
-    sepsis.factor = case_when(sepsis.factor == "None" ~ "None",
-                              TRUE ~ "Sepsis"),
-    sepsis.factor = factor(sepsis.factor, levels = c("None", "Sepsis"))
-  )
+micu_new_anon <- readRDS("./Data/micu_new_anon.rds") # new micu
 
 # Split data into stratified partitions
 micu_index <-
@@ -492,7 +481,7 @@ maaslin2_association_plots <-
 ### Training Cohort Analysis
 #### Univariate Clinical Statistics
 ```{r, univariate-clinical}
-# Build tableone for original cohort
+# Build table one for original cohort
 tableone_nocovid_df <-
   micu_new_nocovid_oc %>%
   left_join(cri_rxmar_abx_long, by = "unique_id") %>%
@@ -708,7 +697,7 @@ tableone_nocovid_print %>%
 # Export to csv to then load in as a dataframe
 write.csv(
   tableone_nocovid_print_clean,
-  "./Results/Table_One_30_Days_Mortality_train_clean.csv",
+  file.path("Results", "Table_One_30_Days_Mortality_train_clean.csv"),
   row.names = TRUE
 )
 
@@ -1291,7 +1280,7 @@ maaslin_no_covariates <- Maaslin2(
       select(-c(unique_id)) %>%
       mutate(race_factor = as.factor(race_factor))
   ),
-  output = "/Users/nick/Documents/GitHub/DFI-Bioinformatics/Medical_Intensive_Care_Unit/Results/Maaslin_Base/",
+  output = "~/Documents/GitHub/Medical_Intensive_Care_Unit/Results/Maaslin_Base",
   min_abundance = 0.001,
   # At least 0.1% abundance
   min_prevalence = 0.10,
@@ -1340,7 +1329,7 @@ maaslin_model <- Maaslin2(
       select(-c(unique_id)) %>%
       mutate(race_factor = as.factor(race_factor))
   ),
-  output = "/Users/nick/Documents/GitHub/DFI-Bioinformatics/Medical_Intensive_Care_Unit/Results/Maaslin_Covariate",
+  output = "~/Documents/GitHub/Medical_Intensive_Care_Unit/Results/Maaslin_Covariate",
   min_abundance = 0.001,
   # At least 0.1% abundance
   min_prevalence = 0.10,
@@ -1864,7 +1853,8 @@ write.csv(., "./Results/MDScore_Cutpoints_train_ridge_order.csv")
 
 min_loop_cmpds <- 2
 max_loop_cmpds <-
-  ncol(cutpoints_results %>% select(-thirtyday_mortality_overall) %>% as.matrix())
+  ncol(cutpoints_results %>% select(-thirtyday_mortality_overall) %>% as.matrix()) - 1
+
 roc_loop_df <- NULL
 
 for (i in seq(min_loop_cmpds, max_loop_cmpds, 1)) {
@@ -2207,7 +2197,7 @@ km_loop_df <- as.data.frame(do.call(rbind, km_loop))
 
 km_loop_df2 <- NULL
 
-for (i in seq(1,30,1)){
+for (i in seq(1,29,1)){
   km_loop_df2 <- janitor::clean_names(rbind(km_loop_df2, km_loop_df[["unadjusted.result"]][i][1][[1]], i))
 }
 
@@ -2594,6 +2584,10 @@ ggsave(
 km_nocovid_final2 <- km_nocovid_final %>% 
   mutate(prediction = ifelse(grouped_md_score == "Low Score", "Survivor", "Non-Survivor"))
 
+pROC::roc(km_nocovid_final2$thirtyday_mortality_overall_class,
+          km_nocovid_final2$md_score)
+# AUC: 0.8563
+
 caret::confusionMatrix(table(
   factor(
     km_nocovid_final2$prediction,
@@ -2609,11 +2603,14 @@ caret::confusionMatrix(table(
 # 
 #               
 #                Survivor Non-Survivor
-#   Survivor           86           11
-#   Non-Survivor       16           34
+#   Survivor           91           13
+#   Non-Survivor       11           32
 #                                           
-#                Accuracy : 0.8163          
-#                  95% CI : (0.7441, 0.8753)
+#                Accuracy : 0.8367          
+#                  95% CI : (0.7669, 0.8925)
+#             Sensitivity : 0.8922          
+#             Specificity : 0.7111 
+                 
 ```
 
 #### Cutpoint Analysis: Shannon Diversity
@@ -3048,6 +3045,24 @@ caret::confusionMatrix(table(
   )
 ))
 
+# Confusion Matrix and Statistics
+
+ #               Survivor Non-Survivor
+ #  Survivor           52            6
+ #  Non-Survivor       50           39
+ #                                          
+ #               Accuracy : 0.619           
+ #                 95% CI : (0.5354, 0.6978)
+ #    No Information Rate : 0.6939          
+ #    P-Value [Acc > NIR] : 0.9786          
+ #                                          
+ #                  Kappa : 0.2957          
+ #                                          
+ # Mcnemar's Test P-Value : 9.132e-09       
+ #                                          
+ #            Sensitivity : 0.5098          
+ #            Specificity : 0.8667          
+
 # Build df of Shannon and Enterococcus
 mds_ecoc <- model_comps_df %>%
   select(md_score, Enterococcus) %>%
@@ -3194,6 +3209,25 @@ caret::confusionMatrix(table(
     levels = c("Survivor", "Non-Survivor")
   )
 ))
+
+# Confusion Matrix and Statistics
+# 
+#               
+#                Survivor Non-Survivor
+#   Survivor           52            6
+#   Non-Survivor       50           39
+#                                           
+#                Accuracy : 0.619           
+#                  95% CI : (0.5354, 0.6978)
+#     No Information Rate : 0.6939          
+#     P-Value [Acc > NIR] : 0.9786          
+#                                           
+#                   Kappa : 0.2957          
+#                                           
+#  Mcnemar's Test P-Value : 9.132e-09       
+#                                           
+#             Sensitivity : 0.5098          
+#             Specificity : 0.8667 
 
 # Build df of Shannon and Enterobacterales
 mds_ebac <- model_comps_df %>%
@@ -3916,6 +3950,7 @@ mds_stats <-
     method = "bray-curtis",
     permutations = 999
   )
+
 mds_pval <- mds_stats$`Pr(>F)`[1]
 
 # Stats: Pairwise analysis
@@ -5290,6 +5325,15 @@ cutpoints_results_var_slct_vc <-
     prediction = ifelse(grouped_md_score == "Low Score", "Survivor", "Non-Survivor")
   )
 
+
+cutpoints_results_var_slct_vc <- cutpoints_results_var_slct_vc %>% 
+  mutate(thirtyday_mortality_overall_class = if_else(thirtyday_mortality_overall == "Survivor", 0, 1))
+
+pROC::roc(cutpoints_results_var_slct_vc$thirtyday_mortality_overall_class,
+          cutpoints_results_var_slct_vc$md_score)
+
+# AUC: 0.6833
+
 caret::confusionMatrix(table(
   factor(
     cutpoints_results_var_slct_vc$prediction,
@@ -5301,9 +5345,21 @@ caret::confusionMatrix(table(
   )
 ))
 
-  #              Survivor Non-Survivor
-  # Survivor           28            6
-  # Non-Survivor        6            9
+ #                 Survivor Non-Survivor
+ #  Survivor           28            8
+ #  Non-Survivor        6            7
+ #                                          
+ #               Accuracy : 0.7143          
+ #                 95% CI : (0.5674, 0.8342)
+ #    No Information Rate : 0.6939          
+ #    P-Value [Acc > NIR] : 0.4464          
+ #                                          
+ #                  Kappa : 0.3014          
+ #                                          
+ # Mcnemar's Test P-Value : 0.7893          
+ #                                          
+ #            Sensitivity : 0.8235          
+ #            Specificity : 0.4667  
 ```
 
 #### Kaplan-Meier Survival Analysis

@@ -1,41 +1,42 @@
-2024-06-03 14:34:05 INFO::Writing function arguments to log file
-2024-06-03 14:34:05 DEBUG::Function arguments
-2024-06-03 14:34:05 DEBUG::Output folder: /Users/nick/Documents/GitHub/DFI-Bioinformatics/Medical_Intensive_Care_Unit/Results/Maaslin_Base/
-2024-06-03 14:34:05 DEBUG::Min Abundance: 0.001000
-2024-06-03 14:34:05 DEBUG::Min Prevalence: 0.100000
-2024-06-03 14:34:05 DEBUG::Normalization: NONE
-2024-06-03 14:34:05 DEBUG::Transform: NONE
-2024-06-03 14:34:05 DEBUG::Analysis method: LM
-2024-06-03 14:34:05 DEBUG::Max significance: 0.050000
-2024-06-03 14:34:05 DEBUG::Random effects:
-2024-06-03 14:34:05 DEBUG::Fixed effects: thirtyday_mortality_overall
-2024-06-03 14:34:05 DEBUG::Correction method: BH
-2024-06-03 14:34:05 DEBUG::Standardize: TRUE
-2024-06-03 14:34:05 DEBUG::Cores: 12
-2024-06-03 14:34:05 INFO::Verifying options selected are valid
-2024-06-03 14:34:05 INFO::Determining format of input files
-2024-06-03 14:34:05 INFO::Input format is data samples as rows and metadata samples as rows
-2024-06-03 14:34:05 DEBUG::A total of 147 samples were found in both the data and metadata
-2024-06-03 14:34:05 DEBUG::Reordering data/metadata to use same sample ordering
-2024-06-03 14:34:05 INFO::Formula for fixed effects: expr ~  thirtyday_mortality_overall
-2024-06-03 14:34:05 INFO::Filter data based on min abundance and min prevalence
-2024-06-03 14:34:05 INFO::Total samples in data: 147
-2024-06-03 14:34:05 INFO::Min samples required with min abundance for a feature not to be filtered: 14.700000
-2024-06-03 14:34:05 INFO::Total filtered features: 55
-2024-06-03 14:34:05 INFO::Filtered feature names from abundance and prevalence filtering: Candidatus.Borkfalkiaceae, Mycobacteriaceae, Pseudomonadaceae, Coriobacteriia, Firmicutes, Synergistaceae, Aminobacteriaceae, Candidatus.Nanoperiomorbaceae, Candidatus.Nanosynbacteraceae, Candidatus.Saccharimonadaceae, Carnobacteriaceae, Corynebacteriaceae, Fusobacteriaceae, Gemella, Kytococcaceae, Peptococcaceae, Promicromonosporaceae, Propionibacteriaceae, Selenomonadaceae, TM7, Morganellaceae, Turicibacteraceae, Ezakiella, Campylobacteraceae, Bacillota, Flavobacteriales, Dethiosulfovibrionaceae, Massilistercora, Tissierellaceae, Pasteurellaceae, Moraxellaceae, Selenomonadales, Dysgonomonadaceae, Alcaligenaceae, Bacilli, Yeguiaceae, Metamycoplasmataceae, Lawsonellaceae, Opitutales, Negativibacillus, Porphyromonadaceae, Tropherymataceae, Bacteroidales, Sporanaerobacteraceae, Leptotrichiaceae, Neisseriaceae, Aerococcaceae, Lentisphaeria, Fenollaria, Acetobacteraceae, Xanthomonadaceae, Victivallaceae, Oxalobacteraceae, Comamonadaceae, Nitrobacteraceae
-2024-06-03 14:34:05 INFO::Total filtered features with variance filtering: 0
-2024-06-03 14:34:05 INFO::Filtered feature names from variance filtering:
-2024-06-03 14:34:05 INFO::Running selected normalization method: NONE
-2024-06-03 14:34:05 INFO::Applying z-score to standardize continuous metadata
-2024-06-03 14:34:05 INFO::Running selected transform method: NONE
-2024-06-03 14:34:05 INFO::Running selected analysis method: LM
-2024-06-03 14:34:05 INFO::Creating cluster of 12 R processes
-2024-06-03 14:34:14 INFO::Counting total values for each feature
-2024-06-03 14:34:14 WARNING::Deleting existing residuals file: /Users/nick/Documents/GitHub/DFI-Bioinformatics/Medical_Intensive_Care_Unit/Results/Maaslin_Base//residuals.rds
-2024-06-03 14:34:14 INFO::Writing residuals to file /Users/nick/Documents/GitHub/DFI-Bioinformatics/Medical_Intensive_Care_Unit/Results/Maaslin_Base//residuals.rds
-2024-06-03 14:34:14 WARNING::Deleting existing fitted file: /Users/nick/Documents/GitHub/DFI-Bioinformatics/Medical_Intensive_Care_Unit/Results/Maaslin_Base//fitted.rds
-2024-06-03 14:34:14 INFO::Writing fitted values to file /Users/nick/Documents/GitHub/DFI-Bioinformatics/Medical_Intensive_Care_Unit/Results/Maaslin_Base//fitted.rds
-2024-06-03 14:34:14 INFO::Writing all results to file (ordered by increasing q-values): /Users/nick/Documents/GitHub/DFI-Bioinformatics/Medical_Intensive_Care_Unit/Results/Maaslin_Base//all_results.tsv
-2024-06-03 14:34:14 INFO::Writing the significant results (those which are less than or equal to the threshold of 0.050000 ) to file (ordered by increasing q-values): /Users/nick/Documents/GitHub/DFI-Bioinformatics/Medical_Intensive_Care_Unit/Results/Maaslin_Base//significant_results.tsv
-2024-06-03 14:34:14 INFO::Writing heatmap of significant results to file: /Users/nick/Documents/GitHub/DFI-Bioinformatics/Medical_Intensive_Care_Unit/Results/Maaslin_Base//heatmap.pdf
-2024-06-03 14:34:14 INFO::Writing association plots (one for each significant association) to output folder: /Users/nick/Documents/GitHub/DFI-Bioinformatics/Medical_Intensive_Care_Unit/Results/Maaslin_Base/
+2024-07-10 09:56:28.514571 INFO::Writing function arguments to log file
+2024-07-10 09:56:28.515852 DEBUG::Function arguments
+2024-07-10 09:56:28.51627 DEBUG::Output folder: ~/Documents/GitHub/Medical_Intensive_Care_Unit/Results/Maaslin_Base
+2024-07-10 09:56:28.516645 DEBUG::Min Abundance: 0.001000
+2024-07-10 09:56:28.517016 DEBUG::Min Prevalence: 0.100000
+2024-07-10 09:56:28.517387 DEBUG::Normalization: NONE
+2024-07-10 09:56:28.517753 DEBUG::Transform: NONE
+2024-07-10 09:56:28.518131 DEBUG::Analysis method: LM
+2024-07-10 09:56:28.518499 DEBUG::Max significance: 0.050000
+2024-07-10 09:56:28.518867 DEBUG::Random effects:
+2024-07-10 09:56:28.519244 DEBUG::Fixed effects: thirtyday_mortality_overall
+2024-07-10 09:56:28.519708 DEBUG::Correction method: BH
+2024-07-10 09:56:28.52011 DEBUG::Standardize: TRUE
+2024-07-10 09:56:28.520479 DEBUG::Cores: 12
+2024-07-10 09:56:28.520829 INFO::Verifying options selected are valid
+2024-07-10 09:56:28.577019 INFO::Determining format of input files
+2024-07-10 09:56:28.578576 INFO::Input format is data samples as rows and metadata samples as rows
+2024-07-10 09:56:28.580282 DEBUG::A total of 147 samples were found in both the data and metadata
+2024-07-10 09:56:28.580661 DEBUG::Reordering data/metadata to use same sample ordering
+2024-07-10 09:56:28.583722 INFO::Formula for fixed effects: expr ~  thirtyday_mortality_overall
+2024-07-10 09:56:28.586167 INFO::Filter data based on min abundance and min prevalence
+2024-07-10 09:56:28.58802 INFO::Total samples in data: 147
+2024-07-10 09:56:28.58985 INFO::Min samples required with min abundance for a feature not to be filtered: 14.700000
+2024-07-10 09:56:28.592748 INFO::Total filtered features: 55
+2024-07-10 09:56:28.593969 INFO::Filtered feature names from abundance and prevalence filtering: Candidatus.Borkfalkiaceae, Mycobacteriaceae, Pseudomonadaceae, Coriobacteriia, Firmicutes, Synergistaceae, Aminobacteriaceae, Candidatus.Nanoperiomorbaceae, Candidatus.Nanosynbacteraceae, Candidatus.Saccharimonadaceae, Carnobacteriaceae, Corynebacteriaceae, Fusobacteriaceae, Gemella, Kytococcaceae, Peptococcaceae, Promicromonosporaceae, Propionibacteriaceae, Selenomonadaceae, TM7, Morganellaceae, Turicibacteraceae, Ezakiella, Campylobacteraceae, Bacillota, Flavobacteriales, Dethiosulfovibrionaceae, Massilistercora, Tissierellaceae, Pasteurellaceae, Moraxellaceae, Selenomonadales, Dysgonomonadaceae, Alcaligenaceae, Bacilli, Yeguiaceae, Metamycoplasmataceae, Lawsonellaceae, Opitutales, Negativibacillus, Porphyromonadaceae, Tropherymataceae, Bacteroidales, Sporanaerobacteraceae, Leptotrichiaceae, Neisseriaceae, Aerococcaceae, Lentisphaeria, Fenollaria, Acetobacteraceae, Xanthomonadaceae, Victivallaceae, Oxalobacteraceae, Comamonadaceae, Nitrobacteraceae
+2024-07-10 09:56:28.596544 INFO::Total filtered features with variance filtering: 0
+2024-07-10 09:56:28.597544 INFO::Filtered feature names from variance filtering:
+2024-07-10 09:56:28.598452 INFO::Running selected normalization method: NONE
+2024-07-10 09:56:28.599661 INFO::Applying z-score to standardize continuous metadata
+2024-07-10 09:56:28.604835 INFO::Running selected transform method: NONE
+2024-07-10 09:56:28.606112 INFO::Running selected analysis method: LM
+2024-07-10 09:56:28.608302 INFO::Creating cluster of 12 R processes
+2024-07-10 09:56:38.613324 INFO::Counting total values for each feature
+2024-07-10 09:56:38.622307 INFO::Writing filtered data to file ~/Documents/GitHub/Medical_Intensive_Care_Unit/Results/Maaslin_Base/features/filtered_data.tsv
+2024-07-10 09:56:38.635832 INFO::Writing filtered, normalized data to file ~/Documents/GitHub/Medical_Intensive_Care_Unit/Results/Maaslin_Base/features/filtered_data_norm.tsv
+2024-07-10 09:56:38.652228 INFO::Writing filtered, normalized, transformed data to file ~/Documents/GitHub/Medical_Intensive_Care_Unit/Results/Maaslin_Base/features/filtered_data_norm_transformed.tsv
+2024-07-10 09:56:38.671247 INFO::Writing residuals to file ~/Documents/GitHub/Medical_Intensive_Care_Unit/Results/Maaslin_Base/fits/residuals.rds
+2024-07-10 09:56:38.680712 INFO::Writing fitted values to file ~/Documents/GitHub/Medical_Intensive_Care_Unit/Results/Maaslin_Base/fits/fitted.rds
+2024-07-10 09:56:38.686232 INFO::Writing all results to file (ordered by increasing q-values): ~/Documents/GitHub/Medical_Intensive_Care_Unit/Results/Maaslin_Base/all_results.tsv
+2024-07-10 09:56:38.692793 INFO::Writing the significant results (those which are less than or equal to the threshold of 0.050000 ) to file (ordered by increasing q-values): ~/Documents/GitHub/Medical_Intensive_Care_Unit/Results/Maaslin_Base/significant_results.tsv
+2024-07-10 09:56:38.695906 INFO::Writing heatmap of significant results to file: ~/Documents/GitHub/Medical_Intensive_Care_Unit/Results/Maaslin_Base/heatmap.pdf
+2024-07-10 09:56:38.716777 INFO::Writing association plots (one for each significant association) to output folder: ~/Documents/GitHub/Medical_Intensive_Care_Unit/Results/Maaslin_Base

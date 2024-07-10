@@ -1,50 +1,23 @@
-2024-06-03 14:34:14 INFO::Writing function arguments to log file
-2024-06-03 14:34:14 DEBUG::Function arguments
-2024-06-03 14:34:14 DEBUG::Output folder: /Users/nick/Documents/GitHub/DFI-Bioinformatics/Medical_Intensive_Care_Unit/Results/Maaslin_Covariate
-2024-06-03 14:34:14 DEBUG::Min Abundance: 0.001000
-2024-06-03 14:34:14 DEBUG::Min Prevalence: 0.100000
-2024-06-03 14:34:14 DEBUG::Normalization: NONE
-2024-06-03 14:34:14 DEBUG::Transform: NONE
-2024-06-03 14:34:14 DEBUG::Analysis method: LM
-2024-06-03 14:34:14 DEBUG::Max significance: 0.050000
-2024-06-03 14:34:14 DEBUG::Random effects:
-2024-06-03 14:34:14 DEBUG::Fixed effects: thirtyday_mortality_overall,sex_factor,age,cci_total_sc,ards_factor,sepsis_factor,sofa_score_total,day_collected,race_factor,diet
-2024-06-03 14:34:14 DEBUG::Correction method: BH
-2024-06-03 14:34:14 DEBUG::Standardize: TRUE
-2024-06-03 14:34:14 DEBUG::Cores: 12
-2024-06-03 14:34:14 INFO::Verifying options selected are valid
-2024-06-03 14:34:14 INFO::Determining format of input files
-2024-06-03 14:34:14 INFO::Input format is data samples as rows and metadata samples as rows
-2024-06-03 14:34:14 DEBUG::A total of 147 samples were found in both the data and metadata
-2024-06-03 14:34:14 DEBUG::Reordering data/metadata to use same sample ordering
-2024-06-03 14:34:14 INFO::Formula for fixed effects: expr ~  thirtyday_mortality_overall + sex_factor + age + cci_total_sc + ards_factor + sepsis_factor + sofa_score_total + day_collected + race_factor + diet
-2024-06-03 14:34:14 INFO::Filter data based on min abundance and min prevalence
-2024-06-03 14:34:14 INFO::Total samples in data: 147
-2024-06-03 14:34:14 INFO::Min samples required with min abundance for a feature not to be filtered: 14.700000
-2024-06-03 14:34:14 INFO::Total filtered features: 55
-2024-06-03 14:34:14 INFO::Filtered feature names from abundance and prevalence filtering: Candidatus.Borkfalkiaceae, Mycobacteriaceae, Pseudomonadaceae, Coriobacteriia, Firmicutes, Synergistaceae, Aminobacteriaceae, Candidatus.Nanoperiomorbaceae, Candidatus.Nanosynbacteraceae, Candidatus.Saccharimonadaceae, Carnobacteriaceae, Corynebacteriaceae, Fusobacteriaceae, Gemella, Kytococcaceae, Peptococcaceae, Promicromonosporaceae, Propionibacteriaceae, Selenomonadaceae, TM7, Morganellaceae, Turicibacteraceae, Ezakiella, Campylobacteraceae, Bacillota, Flavobacteriales, Dethiosulfovibrionaceae, Massilistercora, Tissierellaceae, Pasteurellaceae, Moraxellaceae, Selenomonadales, Dysgonomonadaceae, Alcaligenaceae, Bacilli, Yeguiaceae, Metamycoplasmataceae, Lawsonellaceae, Opitutales, Negativibacillus, Porphyromonadaceae, Tropherymataceae, Bacteroidales, Sporanaerobacteraceae, Leptotrichiaceae, Neisseriaceae, Aerococcaceae, Lentisphaeria, Fenollaria, Acetobacteraceae, Xanthomonadaceae, Victivallaceae, Oxalobacteraceae, Comamonadaceae, Nitrobacteraceae
-2024-06-03 14:34:14 INFO::Total filtered features with variance filtering: 0
-2024-06-03 14:34:14 INFO::Filtered feature names from variance filtering:
-2024-06-03 14:34:14 INFO::Running selected normalization method: NONE
-2024-06-03 14:34:14 INFO::Applying z-score to standardize continuous metadata
-2024-06-03 14:34:14 INFO::Running selected transform method: NONE
-2024-06-03 14:34:14 INFO::Running selected analysis method: LM
-2024-06-03 14:34:14 INFO::Creating cluster of 12 R processes
-2024-06-03 14:34:32 INFO::Counting total values for each feature
-2024-06-03 14:34:32 WARNING::Deleting existing residuals file: /Users/nick/Documents/GitHub/DFI-Bioinformatics/Medical_Intensive_Care_Unit/Results/Maaslin_Covariate/residuals.rds
-2024-06-03 14:34:32 INFO::Writing residuals to file /Users/nick/Documents/GitHub/DFI-Bioinformatics/Medical_Intensive_Care_Unit/Results/Maaslin_Covariate/residuals.rds
-2024-06-03 14:34:32 WARNING::Deleting existing fitted file: /Users/nick/Documents/GitHub/DFI-Bioinformatics/Medical_Intensive_Care_Unit/Results/Maaslin_Covariate/fitted.rds
-2024-06-03 14:34:32 INFO::Writing fitted values to file /Users/nick/Documents/GitHub/DFI-Bioinformatics/Medical_Intensive_Care_Unit/Results/Maaslin_Covariate/fitted.rds
-2024-06-03 14:34:32 INFO::Writing all results to file (ordered by increasing q-values): /Users/nick/Documents/GitHub/DFI-Bioinformatics/Medical_Intensive_Care_Unit/Results/Maaslin_Covariate/all_results.tsv
-2024-06-03 14:34:32 INFO::Writing the significant results (those which are less than or equal to the threshold of 0.050000 ) to file (ordered by increasing q-values): /Users/nick/Documents/GitHub/DFI-Bioinformatics/Medical_Intensive_Care_Unit/Results/Maaslin_Covariate/significant_results.tsv
-2024-06-03 14:34:32 INFO::Writing heatmap of significant results to file: /Users/nick/Documents/GitHub/DFI-Bioinformatics/Medical_Intensive_Care_Unit/Results/Maaslin_Covariate/heatmap.pdf
-2024-06-03 14:34:32 INFO::Writing association plots (one for each significant association) to output folder: /Users/nick/Documents/GitHub/DFI-Bioinformatics/Medical_Intensive_Care_Unit/Results/Maaslin_Covariate
-2024-06-03 14:34:32 INFO::Plotting associations from most to least significant, grouped by metadata
-2024-06-03 14:34:32 INFO::Plotting data for metadata number 1, day_collected
-2024-06-03 14:34:32 INFO::Creating scatter plot for continuous data, day_collected vs Coprobacillaceae
-2024-06-03 14:34:34 INFO::Plotting data for metadata number 2, sofa_score_total
-2024-06-03 14:34:34 INFO::Creating scatter plot for continuous data, sofa_score_total vs Lachnospiraceae
-2024-06-03 14:34:34 INFO::Creating scatter plot for continuous data, sofa_score_total vs Oscillospiraceae
-2024-06-03 14:34:34 INFO::Creating scatter plot for continuous data, sofa_score_total vs Lactobacillaceae
-2024-06-03 14:34:35 INFO::Plotting data for metadata number 3, race_factor
-2024-06-03 14:34:35 INFO::Creating boxplot for categorical data, race_factor vs Rikenellaceae
+2024-07-10 09:56:57.320601 INFO::Writing function arguments to log file
+2024-07-10 09:56:57.321736 DEBUG::Function arguments
+2024-07-10 09:56:57.322101 DEBUG::Output folder: ~/Documents/GitHub/Medical_Intensive_Care_Unit/Results/Maaslin_Covariate
+2024-07-10 09:56:57.322457 DEBUG::Min Abundance: 0.001000
+2024-07-10 09:56:57.322804 DEBUG::Min Prevalence: 0.100000
+2024-07-10 09:56:57.323139 DEBUG::Normalization: NONE
+2024-07-10 09:56:57.323449 DEBUG::Transform: NONE
+2024-07-10 09:56:57.323755 DEBUG::Analysis method: LM
+2024-07-10 09:56:57.324061 DEBUG::Max significance: 0.050000
+2024-07-10 09:56:57.324584 DEBUG::Random effects:
+2024-07-10 09:56:57.324979 DEBUG::Fixed effects: thirtyday_mortality_overall,sex_factor,age,cci_total_sc,ards_factor,sepsis_factor,sofa_score_total,day_collected,race_factor,diet
+2024-07-10 09:56:57.325314 DEBUG::Correction method: BH
+2024-07-10 09:56:57.325622 DEBUG::Standardize: TRUE
+2024-07-10 09:56:57.325933 DEBUG::Cores: 12
+2024-07-10 09:56:57.326223 INFO::Verifying options selected are valid
+2024-07-10 09:56:57.327081 INFO::Determining format of input files
+2024-07-10 09:56:57.327881 INFO::Input format is data samples as rows and metadata samples as rows
+2024-07-10 09:56:57.329277 DEBUG::A total of 147 samples were found in both the data and metadata
+2024-07-10 09:56:57.329757 DEBUG::Reordering data/metadata to use same sample ordering
+2024-07-10 09:56:57.331408 INFO::Formula for fixed effects: expr ~  thirtyday_mortality_overall + sex_factor + age + cci_total_sc + ards_factor + sepsis_factor + sofa_score_total + day_collected + race_factor + diet
+2024-07-10 09:56:57.332544 INFO::Factor detected for categorial metadata 'sex_factor'. Provide a reference argument or manually set factor ordering to change reference level.
+2024-07-10 09:56:57.333469 INFO::Factor detected for categorial metadata 'ards_factor'. Provide a reference argument or manually set factor ordering to change reference level.
+2024-07-10 09:56:57.334343 INFO::Factor detected for categorial metadata 'sepsis_factor'. Provide a reference argument or manually set factor ordering to change reference level.
