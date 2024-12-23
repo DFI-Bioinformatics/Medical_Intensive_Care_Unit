@@ -1,6 +1,6 @@
 ---
 title: "Medical Intensive Care Unit Study"
-author: "Nicholas P Dylla"
+author: "Nicholas P Dylla, Huaiying Lin"
 date: "`r Sys.Date()`"
 output:
   html_document:
