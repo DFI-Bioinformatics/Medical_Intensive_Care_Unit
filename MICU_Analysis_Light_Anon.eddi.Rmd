@@ -147,13 +147,25 @@ use_condaenv("/Users/nick/miniconda3/bin/python")
 load("./Data/MICU_Data_Anon.RData")
 ```
 
+### set output folder:
+```{r}
+eddi.path = "~/Library/CloudStorage/Box-Box/Alexander_DePorto_Nick_Dylla/MICUpaper_Eddi_20240626/"
+
+out.path = "~/OneDrive - The University of Chicago/clinical/20240620_MICU/"
+```
+
+
 ## Load Data
 ```{r, load-data}
 # Load in sample lookup list 
 first_samp_list_anon <- readRDS("./Data/first_samp_list_anon.rds")
 
+first_samp_list_anon %>% 
+  select(unique_id, ID, shotgunSeq_id, metabolomicsID) %>% 
+  write_csv(file.path(out.path, "sampleList.csv"))
+
 # Load in clinical variables
-micu_new_anon <- readRDS("./Data/micu_new_anon.rds") # new micu
+micu_new_anon <- readRDS("~/Library/CloudStorage/Box-Box/Alexander_DePorto_Nick_Dylla/MICUpaper_Eddi_20240626/micu_new_anon.rds") # new micu
 
 # Split data into stratified partitions
 micu_index <-
@@ -189,7 +201,22 @@ pal <- getRdpPal(metaphlan)
 
 metab_quant_imp_tot_mM <- readRDS("./Data/metab_quant_imp_tot_mM.rds")
 
+metab_quant_imp_tot_mM %>% 
+  select(metabolomicsID, compound, mvalue__mM) %>% 
+  spread(compound, mvalue__mM) %>% 
+  left_join(first_samp_list_anon %>% 
+              select(unique_id, metabolomicsID)) %>% 
+  relocate(unique_id) %>% 
+  write_csv(file.path(out.path,"quant.imp.csv"))
+
 metab_qual_imp_tot <- readRDS("./Data/metab_qual_imp_tot.rds")
+
+metab_qual_imp_tot %>% 
+  spread(compound, mvalue) %>% 
+  left_join(first_samp_list_anon %>% 
+              select(unique_id, metabolomicsID)) %>% 
+  relocate(unique_id) %>% 
+  write_csv(file.path(out.path,"qual.imp.csv"))
 
 cri_rxmar_abx_long <- readRDS("./Data/cri_rxmar_abx_long.rds")
 ```
@@ -561,7 +588,7 @@ tableone_nocovid_print <-
 # Export to csv to then load in as a dataframe
 write.csv(
   tableone_nocovid_print,
-  "./Results/Table_One_30_Days_Mortality_train.csv",
+  "./Results/Table_One_30_Days_Mortality_train.Eddi.csv",
   row.names = TRUE
 )
 
@@ -574,119 +601,119 @@ tableone_nocovid_print %>%
   mutate(
     variable = dplyr::recode(
       variable,
-      n = "Number of Patients",
-      `age..median..IQR..` = "Age (median [IQR])",
-      `sex_factor...Male....` = "Male (%)",
-      `bmi..median..IQR..` = "Body Mass Index (median [IQR])",
-      `race_factor....` = "Race (%)",
-      `X...African.American` = " African American",
-      `X...Asian` = "Asian",
-      `X...More.than.one.race` = "More than one race",
-      `X...White..Hispanic` = "White, Hispanic",
-      `X...White..non.Hispanic` = "White, Non-Hispanic",
-      `X...NA` = "NA",
-      `cci_total_sc..median..IQR..` = "Charlson Comorbidity Index (median [IQR])",
-      `primary_dx_factor....` = "Primary admission diagnosis (%)",
-      `X...Acute..on.chronic..liver.failure` = "Acute chronic liver failure",
-      `X...AMI.dysrhythmia` = "AMI dysrhytmia",
-      `X...CHF.cardiogenic.shock` = "CHF cardiogenic shock",
-      `X...CNS.pathology` = "CNS pathology",
-      `X...GI.hemorrhage` = "GI hemorrhage",
-      `X...Metabolic` = "Metabolic",
-      `X...Other` = "Other Primary diagnosis",
-      `X...Post.operative.observation` = "Post-operative observation",
-      `X...Respiratory.failure..AHRF` = "Respiratory failure (AHRF)",
-      `X...Respiratory.failure..airway.compromise` = "Respiratory failure, airway compromise",
-      `X...Respiratory.failure..ventilatory` = "Respiratory failure, ventilatory",
-      `X...Sepsis......septic.shock.` = "Sepsis, septic shock",
-      `ards_factor...Yes....` = "Acute respiratory distress syndrome (%)",
-      `sepsis_factor...Sepsis....` = "Sepsis (%)",
-      `admit_from_factor....` = "Admitted from (%)",
-      `X...Cardiology` = "Cardiology",
-      `X...ED` = "Emergency Department",
-      `X...General.Medicine` = "General Medicine",
-      `X...Liver` = "Liver",
-      `X...Neurology` = "Nuerology",
-      `X...Oncology` = "Oncology",
-      `X...OSH` = "Outside Hospital",
-      `X...Surgery` = "Surgery",
-      `X...NA.1` = "Unknown",
-      `covid_upon_admission...No....` = "No Covid upon admission (%)",
-      `sofa_score_total..median..IQR..` = "SOFA Score (median [IQR])",
-      `ap2_total_score..median..IQR..` = "APACHE II Score (median [IQR])",
-      `day_collected..median..IQR..` = "Day From Admission Stool Sample Collected (median [IQR])",
-      `bacterial_pneumonia...Checked....` = "Bacterial Pneumonia (%)",
-      `fungal_pneumonia...Checked....` = "Fungal Pneumonia (%)",
-      `viral_pneumonia...Checked....` = "Viral Pneumonia (%)",
-      `chronic_obstructive_pulmonary_disease_copd_1...Checked....` = "Chronic Obstructive Pulmonary Disease (COPD) (%)",
-      `asthma_exacerbation...Checked....` = "Asthma exacerbation (%)",
-      `lung_lobar_collapse...Unchecked....` = "Lung/lobar collapse (%)",
-      `pulmonary_embolism...Checked....` = "Pulmonary embolism (%)",
-      `hemoptysis...Checked....` = "Hemoptysis (%)",
-      `pancreatitis...Checked....` = "Pancreatitis (%)",
-      `infection_genitourinary_system...Checked....` = "Infection, genitourinary system (%)",
-      `infection_intra_abdominal...Checked....` = "Infection, Intra-abdominal (%)",
-      `infection_soft_tissue...Checked....` = "Infection, soft tissue (%)",
-      `infection_cns...Checked....` = "Infection, CNS (%)",
-      `hepatic_failure_acute_fullminant...Checked....` = "Hepatic failure, acute fullminant (%)",
-      `hepatic_failure_acute_on_chronic...Checked....` = "Hepatic failure, acute on chronic (%)",
-      `diabetic_ketoacidosis...Checked....` = "Diabetic ketoacidosis (%)",
-      `acute_leukemia...Checked....` = "Acute leukemia (%)",
-      `cerebral_vascular_accident_1...Checked....` = "Cerebreal vascular accident (%)",
-      `acute_myocardial_infarction_nstemi_stemi...Checked....` = "Acute myocardial infarction (NSTEMI/STEMI) (%)",
-      `diffuse_alveolar_hemorrhage...Checked....` = "Diffuse alveolar hemorrhage (%)",
-      `decompensated_heart_failure_pulmonary_oedema...Checked....` = "Decompensated heart failure/Pulmonary oedema (%)",
-      `pleural_effusion...Checked....` = "Pleural effusion (%)",
-      `interstitial_lung_disease_exacerbation...Checked....` = "Interstitial lung disease exacerbation (%)",
-      `organizing_pneumonia...Unchecked....` = "Organizing pneumonia (%)",
-      `acute_eosinophilic_pneumoniae...Unchecked....` = "Acute eosinophilic pneumoniae (%)",
-      `other...Checked....` = "Other (%)",
-      `angioedema...Checked....` = "Angioedema (%)",
-      `acute_renal_failure...Checked....` = "Acute renal failure (%)",
-      `altered_mental_status...Checked....` = "Altered mental status (%)",
-      `hypertensive_urgency...Checked....` = "Hypertensive urgency (%)",
-      `hypertensive_emergency...Checked....` = "Hypertensive emergency (%)",
-      `endocarditis...Checked....` = "Endocarditis (%)",
-      `bacteremia...Checked....` = "Bacteremia (%)",
-      `gastrointestinal_bleeding...Checked....` = "Gastrointestinal bleeding (%)",
-      `hemorrhagic_shock...Checked....` = "Hemorrhagic shock (%)",
-      `aspiration...Checked....` = "Aspiration (%)",
-      `central_line_associated_blood_steam_infection...Checked....` = "Central line associated blood steam infection (%)",
-      `prosthetic_joint_infection...Checked....` = "Prosthetic joint infection (%)",
-      `new_onset_atrial_fibrillation...Checked....` = "New onset atrial fibrillation (%)",
-      `newly_diagnosed_solid_malignancy...Checked....` = "Newly diagnosed solid malignancy (%)",
-      `myocardial_infract...Checked....` = "Myocardial infract (%)",
-      `congestive_heart_failure...Checked....` = "Congestive heart failure (%)",
-      `peripheral_vascular_disease_cci...Checked....` = "Peripheral vascular disease (%)",
-      `cerebrovascular_disease...Checked....` = "Cerebrovascular disease (%)",
-      `dementia...Checked....` = "Dementia (%)",
-      `chronic_pulmonary_disease...Checked....` = "Chronic pulmonary disease (%)",
-      `connective_tissue_disease_1...Checked....` = "Connective tissue disease (%)",
-      `ulcer_disease...Checked....` = "Ulcer disease (%)",
-      `mild_liver_disease...Checked....` = "Mild liver disease (%)",
-      `diabetes_without_complications...Checked....` = "Diabetes (without complications) (%)",
-      `diabetes_with_end_organ_damage...Checked....` = "Diabetes (with end organ damage) (%)",
-      `hemiplegia...Checked....` = "Hemiplegia (%)",
-      `moderate_or_severe_renal_disease...Checked....` = "Moderate or severe renal disease (%)",
-      `solid_tumor_non_metastatic...Checked....` = "Solid tumor (non-metastatic) (%)",
-      `leukemia...Checked....` = "Leukemia (%)",
-      `lymhoma...Checked....` = "Lymphoma (%)",
-      `moderate_or_severe_liver_disease...Checked....` = "Moderate or severe liver disease (%)",
-      `metastatic_solid_tumor...Checked....` = "Solid tumor (metastatic) (%)",
-      `aids...Checked....` = "AIDS (%)",
-      `penicillins...Checked....` = "Penicillins (%)",
-      `cephalosporins...Checked....` = "Cephalosporins (%)",
-      `carbapenems...Checked....` = "Carbapenems (%)",
-      `vancomycin...Checked....` = "Vancomycin (%)",
-      `metronidazole...Checked....` = "Metronidazole (%)",
-      `macrolides...Checked....` = "Macrolides (%)",
-      `quinolones...Checked....` = "Quinolones (%)",
-      `other_2...Checked....` = "Other Antiobiotics (%)",
-      `clindamycin...Checked....` = "Clindamycin (%)",
-      `aminoglycosides...Checked....` = "Aminoglycosides (%)",
-      `doxycycline...Checked....` = "Doxycycline (%)",
-      `trimethoprim_sulfamethoxazole...Checked....` = "Trimethoprim-Sulfamethoxazole (%)",
-      `rifaximin...Checked....` = "Rifaximin (%)",
+            n = "Number of Patients",
+      `age (median [IQR])` = "Age (median [IQR])",
+      `sex_factor = Male (%)` = "Male (%)",
+      `bmi (median [IQR])` = "Body Mass Index (median [IQR])",
+      `race_factor (%)` = "Race (%)",
+      `African American` = " African American",
+      `Asian` = "Asian",
+      `More than one race` = "More than one race",
+      `White, Hispanic` = "White, Hispanic",
+      `White, non-Hispanic` = "White, Non-Hispanic",
+      `Other` = "Unknown Race",
+      `cci_total_sc (median [IQR])` = "Charlson Comorbidity Index (median [IQR])",
+      `primary_dx_factor (%)` = "Primary admission diagnosis (%)",
+      `Acute (on chronic) liver failure` = "Acute chronic liver failure",
+      # `X...AMI.dysrhythmia` = "AMI dysrhytmia",
+      # `X...CHF.cardiogenic.shock` = "CHF cardiogenic shock",
+      `CNS pathology` = "CNS pathology",
+      `GI hemorrhage` = "GI hemorrhage",
+      # `X...Metabolic` = "Metabolic",
+      # `X...Other` = "Other Primary diagnosis",
+      `Post-operative observation` = "Post-operative observation",
+      `Respiratory failure, AHRF` = "Respiratory failure (AHRF)",
+      `Respiratory failure, airway compromise` = "Respiratory failure, airway compromise",
+      `Respiratory failure, ventilatory` = "Respiratory failure, ventilatory",
+      `Sepsis (+/- septic shock)` = "Sepsis, septic shock",
+      `ards_factor = Yes (%)` = "Acute respiratory distress syndrome (%)",
+      `sepsis_factor = Sepsis (%)` = "Sepsis (%)",
+      `admit_from_factor (%)` = "Admitted from (%)",
+      `Cardiology` = "Cardiology",
+      `ED` = "Emergency Department",
+      `General Medicine` = "General Medicine",
+      `Liver` = "Liver",
+      # `Neurology` = "Nuerology",
+      `Oncology` = "Oncology",
+      `OSH` = "Outside Hospital",
+      `Surgery` = "Surgery",
+      # `X...NA.1` = "Unknown",
+      `covid_upon_admission = No (%)` = "No Covid upon admission (%)",
+      `sofa_score_total (median [IQR])` = "SOFA Score (median [IQR])",
+      `ap2_total_score (median [IQR])` = "APACHE II Score (median [IQR])",
+      `day_collected (median [IQR])` = "Day From Admission Stool Sample Collected (median [IQR])",
+      `bacterial_pneumonia = Checked (%)` = "Bacterial Pneumonia (%)",
+      `fungal_pneumonia = Checked (%)` = "Fungal Pneumonia (%)",
+      `viral_pneumonia = Checked (%)` = "Viral Pneumonia (%)",
+      `chronic_obstructive_pulmonary_disease_copd_1 = Checked (%)` = "Chronic Obstructive Pulmonary Disease (COPD) (%)",
+      `asthma_exacerbation = Unchecked (%)` = "Asthma exacerbation (%)",
+      `lung_lobar_collapse = Checked (%)` = "Lung/lobar collapse (%)",
+      `pulmonary_embolism = Checked (%)` = "Pulmonary embolism (%)",
+      `hemoptysis = Unchecked (%)` = "Hemoptysis (%)",
+      `pancreatitis = Unchecked (%)` = "Pancreatitis (%)",
+      `infection_genitourinary_system = Checked (%)` = "Infection, genitourinary system (%)",
+      `infection_intra_abdominal = Checked (%)` = "Infection, Intra-abdominal (%)",
+      `infection_soft_tissue = Checked (%)` = "Infection, soft tissue (%)",
+      `infection_cns = Checked (%)` = "Infection, CNS (%)",
+      `hepatic_failure_acute_fullminant = Unchecked (%)` = "Hepatic failure, acute fullminant (%)",
+      `hepatic_failure_acute_on_chronic = Checked (%)` = "Hepatic failure, acute on chronic (%)",
+      `diabetic_ketoacidosis = Checked (%)` = "Diabetic ketoacidosis (%)",
+      `acute_leukemia = Unchecked (%)` = "Acute leukemia (%)",
+      `cerebral_vascular_accident_1 = Checked (%)` = "Cerebreal vascular accident (%)",
+      `acute_myocardial_infarction_nstemi_stemi = Unchecked (%)` = "Acute myocardial infarction (NSTEMI/STEMI) (%)",
+      `diffuse_alveolar_hemorrhage = Unchecked (%)` = "Diffuse alveolar hemorrhage (%)",
+      `decompensated_heart_failure_pulmonary_oedema = Checked (%)` = "Decompensated heart failure/Pulmonary oedema (%)",
+      `pleural_effusion = Checked (%)` = "Pleural effusion (%)",
+      `interstitial_lung_disease_exacerbation = Checked (%)` = "Interstitial lung disease exacerbation (%)",
+      `organizing_pneumonia = Unchecked (%)` = "Organizing pneumonia (%)",
+      `acute_eosinophilic_pneumoniae = Unchecked (%)` = "Acute eosinophilic pneumoniae (%)",
+      `other = Checked (%)` = "Other (%)",
+      `angioedema = Checked (%)` = "Angioedema (%)",
+      `acute_renal_failure = Checked (%)` = "Acute renal failure (%)",
+      `altered_mental_status = Checked (%)` = "Altered mental status (%)",
+      `hypertensive_urgency = Checked (%)` = "Hypertensive urgency (%)",
+      `hypertensive_emergency = Checked (%)` = "Hypertensive emergency (%)",
+      `endocarditis = Checked (%)` = "Endocarditis (%)",
+      `bacteremia = Checked (%)` = "Bacteremia (%)",
+      `gastrointestinal_bleeding = Unchecked (%)` = "Gastrointestinal bleeding (%)",
+      `hemorrhagic_shock = Unchecked (%)` = "Hemorrhagic shock (%)",
+      `aspiration = Checked (%)` = "Aspiration (%)",
+      `central_line_associated_blood_steam_infection = Unchecked (%)` = "Central line associated blood steam infection (%)",
+      `prosthetic_joint_infection = Unchecked (%)` = "Prosthetic joint infection (%)",
+      `new_onset_atrial_fibrillation = Unchecked (%)` = "New onset atrial fibrillation (%)",
+      `newly_diagnosed_solid_malignancy = Checked (%)` = "Newly diagnosed solid malignancy (%)",
+      `myocardial_infract = Checked (%)` = "Myocardial infract (%)",
+      `congestive_heart_failure = Checked (%)` = "Congestive heart failure (%)",
+      `peripheral_vascular_disease_cci = Checked (%)` = "Peripheral vascular disease (%)",
+      `cerebrovascular_disease = Checked (%)` = "Cerebrovascular disease (%)",
+      `dementia = Unchecked (%)` = "Dementia (%)",
+      `chronic_pulmonary_disease = Checked (%)` = "Chronic pulmonary disease (%)",
+      `connective_tissue_disease_1 = Checked (%)` = "Connective tissue disease (%)",
+      `ulcer_disease = Checked (%)` = "Ulcer disease (%)",
+      `mild_liver_disease = Checked (%)` = "Mild liver disease (%)",
+      `diabetes_without_complications = Checked (%)` = "Diabetes (without complications) (%)",
+      `diabetes_with_end_organ_damage = Checked (%)` = "Diabetes (with end organ damage) (%)",
+      `hemiplegia = Checked (%)` = "Hemiplegia (%)",
+      `moderate_or_severe_renal_disease = Checked (%)` = "Moderate or severe renal disease (%)",
+      `solid_tumor_non_metastatic = Checked (%)` = "Solid tumor (non-metastatic) (%)",
+      `leukemia = Checked (%)` = "Leukemia (%)",
+      `lymhoma = Checked (%)` = "Lymphoma (%)",
+      `moderate_or_severe_liver_disease = Checked (%)` = "Moderate or severe liver disease (%)",
+      `metastatic_solid_tumor = Checked (%)` = "Solid tumor (metastatic) (%)",
+      `aids = Checked (%)` = "AIDS (%)",
+      `penicillins = Checked (%)` = "Penicillins (%)",
+      `cephalosporins = Checked (%)` = "Cephalosporins (%)",
+      `carbapenems = Checked (%)` = "Carbapenems (%)",
+      `vancomycin = Checked (%)` = "Vancomycin (%)",
+      `metronidazole = Checked (%)` = "Metronidazole (%)",
+      `macrolides = Checked (%)` = "Macrolides (%)",
+      `quinolones = Checked (%)` = "Quinolones (%)",
+      `other_2 = Checked (%)` = "Other Antiobiotics (%)",
+      `clindamycin = Checked (%)` = "Clindamycin (%)",
+      `aminoglycosides = Checked (%)` = "Aminoglycosides (%)",
+      `doxycycline = Checked (%)` = "Doxycycline (%)",
+      `trimethoprim_sulfamethoxazole = Checked (%)` = "Trimethoprim-Sulfamethoxazole (%)",
+      `rifaximin = Checked (%)` = "Rifaximin (%)",
       `diet...npo....` = "Diet (nothing by mouth) (%)",
       `d_sofa_admission..median..IQR..` = "SOFA from admission (median [IQR])",
       `d_sofa_stool..median..IQR..` = "SOFA from Stool Sample (median [IQR])"
@@ -697,13 +724,13 @@ tableone_nocovid_print %>%
 # Export to csv to then load in as a dataframe
 write.csv(
   tableone_nocovid_print_clean,
-  file.path("Results", "Table_One_30_Days_Mortality_train_clean.csv"),
+  file.path(eddi.path, "Table_One_30_Days_Mortality_train_clean.Eddi.csv"),
   row.names = TRUE
 )
 
 # Import csv as dataframe
 tableone_nocovid_csv <-
-  read.csv("./Results/Table_One_30_Days_Mortality_train.csv",
+  read.csv(file.path("Results","Table_One_30_Days_Mortality_train.Eddi.csv"),
     stringsAsFactors = FALSE
   )
 
@@ -1280,7 +1307,7 @@ maaslin_no_covariates <- Maaslin2(
       select(-c(unique_id)) %>%
       mutate(race_factor = as.factor(race_factor))
   ),
-  output = "~/Documents/GitHub/Medical_Intensive_Care_Unit/Results/Maaslin_Base",
+  output = "/Users/nick/Documents/GitHub/DFI-Bioinformatics/Medical_Intensive_Care_Unit/Results/Maaslin_Base/",
   min_abundance = 0.001,
   # At least 0.1% abundance
   min_prevalence = 0.10,
@@ -1329,7 +1356,7 @@ maaslin_model <- Maaslin2(
       select(-c(unique_id)) %>%
       mutate(race_factor = as.factor(race_factor))
   ),
-  output = "~/Documents/GitHub/Medical_Intensive_Care_Unit/Results/Maaslin_Covariate",
+  output = "/Users/nick/Documents/GitHub/DFI-Bioinformatics/Medical_Intensive_Care_Unit/Results/Maaslin_Covariate",
   min_abundance = 0.001,
   # At least 0.1% abundance
   min_prevalence = 0.10,
@@ -1771,7 +1798,7 @@ ggsave(
   height = 6,
   width = 12,
   units = "in"
-)
+) # this was not mentioned in the text
 
 # Build dataframe to use cutpoints
 cutpoints_results <-
@@ -1853,9 +1880,10 @@ write.csv(., "./Results/MDScore_Cutpoints_train_ridge_order.csv")
 
 min_loop_cmpds <- 2
 max_loop_cmpds <-
-  ncol(cutpoints_results %>% select(-thirtyday_mortality_overall) %>% as.matrix()) - 1
-
+  ncol(cutpoints_results %>% select(-thirtyday_mortality_overall) %>% as.matrix())
 roc_loop_df <- NULL
+
+max_loop_cmpds = 29
 
 for (i in seq(min_loop_cmpds, max_loop_cmpds, 1)) {
   # i = 15
@@ -2070,7 +2098,7 @@ for (i in seq(min_loop_cmpds, max_loop_cmpds, 1)) {
 # Output to CSV files
 write.csv(
   roc_loop_df,
-  "./Results/ROC_Results_Ridge_Cutpoint_train.csv"
+  file.path(eddi.path,"ROC_Results_Ridge_Cutpoint_train.Eddi.csv")
 )
 
 cutpoints_roc_loop <-
@@ -2193,12 +2221,12 @@ km_loop <-
     )
   )) 
 
-km_loop_df <- as.data.frame(do.call(rbind, km_loop))
+km_loop_df <- as.data.frame(do.call(base::rbind, km_loop))
 
 km_loop_df2 <- NULL
 
 for (i in seq(1,29,1)){
-  km_loop_df2 <- janitor::clean_names(rbind(km_loop_df2, km_loop_df[["unadjusted.result"]][i][1][[1]], i))
+  km_loop_df2 <- janitor::clean_names(base::rbind(km_loop_df2, km_loop_df[["unadjusted.result"]][i][1][[1]], i))
 }
 
 km_loop_df2 <-
@@ -2444,7 +2472,7 @@ gg_roc_loop_compounds <-
   scale_x_discrete(expand = expansion(add = c(0.6, 1)))
 
 # Combine plots
-cairo_pdf("./Results/ROC_Loop_train.pdf", height = 12, width = 14)
+cairo_pdf(file.path(eddi.path,"/ROC_Loop_train.pdf"), height = 12, width = 14)
 
 gg_roc_loop_metrics / gg_km_loop/ gg_roc_loop_compounds +
   patchwork::plot_layout(heights = c(1, 0.35, 1.1))
@@ -2584,9 +2612,20 @@ ggsave(
 km_nocovid_final2 <- km_nocovid_final %>% 
   mutate(prediction = ifelse(grouped_md_score == "Low Score", "Survivor", "Non-Survivor"))
 
+
+# AUC: 0.8563
 pROC::roc(km_nocovid_final2$thirtyday_mortality_overall_class,
           km_nocovid_final2$md_score)
-# AUC: 0.8563
+
+# Confusion Matrix and Statistics
+# 
+#               
+#                Survivor Non-Survivor
+#   Survivor           86           11
+#   Non-Survivor       16           34
+#                                           
+#                Accuracy : 0.8163          
+#                  95% CI : (0.7441, 0.8753)
 
 caret::confusionMatrix(table(
   factor(
@@ -2599,18 +2638,15 @@ caret::confusionMatrix(table(
   )
 ))
 
-# Confusion Matrix and Statistics
-# 
-#               
-#                Survivor Non-Survivor
-#   Survivor           91           13
-#   Non-Survivor       11           32
-#                                           
-#                Accuracy : 0.8367          
-#                  95% CI : (0.7669, 0.8925)
-#             Sensitivity : 0.8922          
-#             Specificity : 0.7111 
-                 
+# number changed in Eddi's repeat:
+  #              Survivor Non-Survivor
+  # Survivor           91           13
+  # Non-Survivor       11           32
+  #                                         
+  #              Accuracy : 0.8367          
+  #              Sensitivity : 0.8922          
+  #              Specificity : 0.7111
+
 ```
 
 #### Cutpoint Analysis: Shannon Diversity
@@ -2916,6 +2952,14 @@ caret::confusionMatrix(table(
 #                Accuracy : 0.8163          
 #                  95% CI : (0.7441, 0.8753)
 
+# changed results:
+  #              Survivor Non-Survivor
+  # Survivor           91           13
+  # Non-Survivor       11           32
+  #                                         
+  #              Accuracy : 0.8367          
+  #                95% CI : (0.7669, 0.8925)
+
 # Build df of MDS and Shannon
 mds_shannon <- micu_new_nocovid_oc %>%
   select(shotgunSeq_id, metabolomicsID) %>%
@@ -3044,24 +3088,6 @@ caret::confusionMatrix(table(
     levels = c("Survivor", "Non-Survivor")
   )
 ))
-
-# Confusion Matrix and Statistics
-
- #               Survivor Non-Survivor
- #  Survivor           52            6
- #  Non-Survivor       50           39
- #                                          
- #               Accuracy : 0.619           
- #                 95% CI : (0.5354, 0.6978)
- #    No Information Rate : 0.6939          
- #    P-Value [Acc > NIR] : 0.9786          
- #                                          
- #                  Kappa : 0.2957          
- #                                          
- # Mcnemar's Test P-Value : 9.132e-09       
- #                                          
- #            Sensitivity : 0.5098          
- #            Specificity : 0.8667          
 
 # Build df of Shannon and Enterococcus
 mds_ecoc <- model_comps_df %>%
@@ -3209,25 +3235,6 @@ caret::confusionMatrix(table(
     levels = c("Survivor", "Non-Survivor")
   )
 ))
-
-# Confusion Matrix and Statistics
-# 
-#               
-#                Survivor Non-Survivor
-#   Survivor           52            6
-#   Non-Survivor       50           39
-#                                           
-#                Accuracy : 0.619           
-#                  95% CI : (0.5354, 0.6978)
-#     No Information Rate : 0.6939          
-#     P-Value [Acc > NIR] : 0.9786          
-#                                           
-#                   Kappa : 0.2957          
-#                                           
-#  Mcnemar's Test P-Value : 9.132e-09       
-#                                           
-#             Sensitivity : 0.5098          
-#             Specificity : 0.8667 
 
 # Build df of Shannon and Enterobacterales
 mds_ebac <- model_comps_df %>%
@@ -3755,8 +3762,15 @@ reset_gtsummary_theme()
 coxauc <-
   coxph(
     Surv(cox_df$surv_days, cox_df$thirtyday_mortality_overall_class) ~
+      `Sex` +
+      `Age` +
       `Charlson Comorbidity Index` +
+      `Acute respiratory distress syndrome` +
+      `Sepsis` +
       `SOFA Score` +
+      `Race` +
+      `Time to stool sample` +
+      `Diet` +
       `MDS`,
     data = cox_df
   ) %>%
@@ -3776,7 +3790,6 @@ coxauc <-
   ) %>%
   modify_footnote(everything() ~ NA, abbreviation = TRUE)
 
-
 coxauc %>%
   gtsummary::modify_caption("**Cox Proportional Hazards Regression**")
 
@@ -3784,14 +3797,26 @@ coxauc %>%
 # f <- chromote::default_chromote_object() #get the f object
 # f$close()
 
-gt::gtsave(gtsummary::as_gt(coxauc), file = "cox/cox_model_SOFA_30_Day_Mortality_roc_loop_train.png")
+coxauc %>% 
+  gtsummary::as_tibble() %>% 
+  writexl::write_xlsx(., file.path(eddi.path,"cox_model_SOFA_30_Day_Mortality_roc_loop_train.xlsx"))
+
+
+gt::gtsave(gtsummary::as_gt(coxauc), file = "./Results/cox_model_SOFA_30_Day_Mortality_roc_loop_train.png")
 
 # Enterococcus Domination
 coxauc_ecoc <-
   coxph(
     Surv(cox_df$surv_days, cox_df$thirtyday_mortality_overall_class) ~
+      `Sex` +
+      `Age` +
       `Charlson Comorbidity Index` +
+      `Acute respiratory distress syndrome` +
+      `Sepsis` +
       `SOFA Score` +
+      `Race` +
+      `Time to stool sample` +
+      `Diet` + 
       `Enterococcus Domination`,
     data = cox_df
   ) %>%
@@ -3814,14 +3839,25 @@ coxauc_ecoc <-
 coxauc_ecoc %>%
   gtsummary::modify_caption("**Cox Proportional Hazards Regression**")
 
-gt::gtsave(gtsummary::as_gt(coxauc_ecoc), file = "./cox/cox_model_SOFA_Enterococcus_30_Day_Mortality_train.png")
+gt::gtsave(gtsummary::as_gt(coxauc_ecoc), file = "./Results/cox_model_SOFA_Enterococcus_30_Day_Mortality_train.png")
+
+coxauc_ecoc %>% 
+  gtsummary::as_tibble() %>% 
+  writexl::write_xlsx(., file.path(eddi.path,"cox_model_SOFA_Enterococcus_30_Day_Mortality_train.xlsx"))
 
 # Enterococcus Domination
 coxauc_ebac <-
   coxph(
     Surv(cox_df$surv_days, cox_df$thirtyday_mortality_overall_class) ~
+      `Sex` +
+      `Age` +
       `Charlson Comorbidity Index` +
+      `Acute respiratory distress syndrome` +
+      `Sepsis` +
       `SOFA Score` +
+      `Race` +
+      `Time to stool sample` +
+      `Diet` + +
       `Enterobacterales Domination`,
     data = cox_df
   ) %>%
@@ -3844,14 +3880,26 @@ coxauc_ebac <-
 coxauc_ebac %>%
   gtsummary::modify_caption("**Cox Proportional Hazards Regression**")
 
-gt::gtsave(gtsummary::as_gt(coxauc_ebac), file = "cox/cox_model_SOFA_Enterobacterales_30_Day_Mortality_train.png")
+gt::gtsave(gtsummary::as_gt(coxauc_ebac), file = "./Results/cox_model_SOFA_Enterobacterales_30_Day_Mortality_train.png")
+
+coxauc_ebac %>% 
+  gtsummary::as_tibble() %>% 
+  writexl::write_xlsx(., file.path(eddi.path,"cox_model_SOFA_Enterobacterales_30_Day_Mortality_train.xlsx"))
+
 
 # Shannon Diversity
 coxauc_shannon <-
   coxph(
     Surv(cox_df$surv_days, cox_df$thirtyday_mortality_overall_class) ~
+      `Sex` +
+      `Age` +
       `Charlson Comorbidity Index` +
+      `Acute respiratory distress syndrome` +
+      `Sepsis` +
       `SOFA Score` +
+      `Race` +
+      `Time to stool sample` +
+      `Diet` + 
       `Shannon Diversity`,
     data = cox_df
   ) %>%
@@ -3875,7 +3923,12 @@ coxauc_shannon <-
 coxauc_shannon %>%
   gtsummary::modify_caption("**Cox Proportional Hazards Regression**")
 
-gt::gtsave(gtsummary::as_gt(coxauc_shannon), file = "cox/cox_model_SOFA_Shannon_30_Day_Mortality_train.png")
+coxauc_shannon %>% 
+  gtsummary::as_tibble() %>% 
+  writexl::write_xlsx(., file.path(eddi.path,"cox_model_SOFA_Shannon_30_Day_Mortality_train.xlsx"))
+
+
+gt::gtsave(gtsummary::as_gt(coxauc_shannon), file = "./Results/cox_model_SOFA_Shannon_30_Day_Mortality_train.png")
 ```
 
 #### Beta Diversity
@@ -3922,7 +3975,6 @@ mds_stats <-
     method = "bray-curtis",
     permutations = 999
   )
-
 mds_pval <- mds_stats$`Pr(>F)`[1]
 
 # Stats: Pairwise analysis
@@ -5002,6 +5054,8 @@ caret::confusionMatrix(table(
             # Sensitivity : 0.4118          
             # Specificity : 0.8222  
 
+# same with Eddi's
+
 # Export confusion matrix
 bind_rows(
   as.data.frame(as.table(caret::confusionMatrix(
@@ -5231,6 +5285,10 @@ coxauc_mmp %>%
 # f <- chromote::default_chromote_object() #get the f object
 # f$close()
 
+coxauc_mmp %>% 
+  gtsummary::as_tibble() %>% 
+  writexl::write_xlsx(file.path(eddi.path, "cox_model_MMP_30_Day_Mortality_train.xlsx"))
+
 gt::gtsave(gtsummary::as_gt(coxauc_mmp), file = "./Results/cox_model_MMP_30_Day_Mortality_train.png")
 ```
 
@@ -5297,6 +5355,18 @@ cutpoints_results_var_slct_vc <-
     prediction = ifelse(grouped_md_score == "Low Score", "Survivor", "Non-Survivor")
   )
 
+caret::confusionMatrix(table(
+  factor(
+    cutpoints_results_var_slct_vc$prediction,
+    levels = c("Survivor", "Non-Survivor")
+  ),
+  factor(
+    cutpoints_results_var_slct_vc$thirtyday_mortality_overall,
+    levels = c("Survivor", "Non-Survivor")
+  )
+))
+
+# AUC: 0.6833
 
 cutpoints_results_var_slct_vc <- cutpoints_results_var_slct_vc %>% 
   mutate(thirtyday_mortality_overall_class = if_else(thirtyday_mortality_overall == "Survivor", 0, 1))
@@ -5304,43 +5374,20 @@ cutpoints_results_var_slct_vc <- cutpoints_results_var_slct_vc %>%
 pROC::roc(cutpoints_results_var_slct_vc$thirtyday_mortality_overall_class,
           cutpoints_results_var_slct_vc$md_score)
 
-# AUC: 0.6833
 
-vc_cm <- caret::confusionMatrix(table(
-  factor(
-    cutpoints_results_var_slct_vc$prediction,
-    levels = c("Survivor","Non-Survivor")
-  ),
-  factor(
-    cutpoints_results_var_slct_vc$thirtyday_mortality_overall,
-    levels = c("Survivor","Non-Survivor")
-  )
-))
+  #              Survivor Non-Survivor
+  # Survivor           28            6
+  # Non-Survivor        6            9
 
- #                 Survivor Non-Survivor
- #  Survivor           28            8
- #  Non-Survivor        6            7
- #                                          
- #               Accuracy : 0.7143          
- #                 95% CI : (0.5674, 0.8342)
- #    No Information Rate : 0.6939          
- #    P-Value [Acc > NIR] : 0.4464          
- #                                          
- #                  Kappa : 0.3014          
- #                                          
- # Mcnemar's Test P-Value : 0.7893          
- #                                          
- #            Sensitivity : 0.8235          
- #            Specificity : 0.4667  
 
-print(vc_cm)
+  #             Survivor Non-Survivor
+  # Survivor           28            8
+  # Non-Survivor        6            7
+  #                                         
+  #              Accuracy : 0.7143   
 
-library(epiR)
-
-data <- as.table(matrix(c(28,8,6,7), nrow = 2, byrow = TRUE))
-rval <- epi.tests(data, conf.level = 0.95)
-
-print(rval)
+            # Sensitivity : 0.8235          
+            # Specificity : 0.4667  
 
 ```
 
@@ -5378,6 +5425,12 @@ km_nocovid_vc <- micu_new_nocovid_vc %>%
     thirtyday_mortality_overall_class = ifelse(thirtyday_mortality_overall == "Survivor", 0, 1)
   ) %>% # Non-Survivor is 1
   left_join(cutpoints_results_var_slct_vc) 
+
+rms_vc <- rmst2(km_nocovid_vc$surv_days,
+      km_nocovid_vc$thirtyday_mortality_overall_class,
+      as.numeric(as.factor(km_nocovid_vc$grouped_md_score))-1,
+      tau = 30)
+
 
 # KM Curves: MD Score
 set.seed(123)
@@ -5580,7 +5633,7 @@ tableone_nocovid_print_vc <-
 # Save CSV
 write.csv(
   tableone_nocovid_print_vc,
-  "./Results/Table_One_30_Days_Mortality_validation.csv",
+  file.path(eddi.path,"Table_One_30_Days_Mortality_validation.eddi.csv"),
   row.names = TRUE
 )
 
@@ -5715,7 +5768,7 @@ tableone_nocovid_print_vc %>%
 # Export to csv to then load in as a dataframe
 write.csv(
   tableone_nocovid_print_vc_clean,
-  "./Results/Table_One_30_Days_Mortality_validation_clean.csv",
+  file.path(eddi.path,"Table_One_30_Days_Mortality_validation_clean.eddi.csv"),
   row.names = TRUE
 )
 
@@ -5859,8 +5912,15 @@ coxauc_vc <-
       cox_df_vc$surv_days,
       cox_df_vc$thirtyday_mortality_overall_class
     ) ~
+      `Sex` +
+      `Age` +
       `Charlson Comorbidity Index` +
+      `Acute respiratory distress syndrome` +
+      `Sepsis` +
       `SOFA Score` +
+      `Race` +
+      `Time to stool sample` +
+      `Diet` +
       `MDS`,
     data = cox_df_vc
   ) %>%
@@ -5888,7 +5948,11 @@ coxauc_vc %>%
 # f <- chromote::default_chromote_object() #get the f object
 # f$close()
 
-gt::gtsave(gtsummary::as_gt(coxauc_vc), file = "cox/cox_model_SOFA_30_Day_Mortality_roc_loop_validation.png")
+coxauc_vc %>% 
+  gtsummary::as_tibble() %>% 
+  writexl::write_xlsx(file.path(eddi.path, "cox_model_SOFA_30_Day_Mortality_roc_loop_validation.xlsx"))
+
+gt::gtsave(gtsummary::as_gt(coxauc_vc), file = "./Results/cox_model_SOFA_30_Day_Mortality_roc_loop_validation.png")
 ```
 
 ## Save Data Image
