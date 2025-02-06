@@ -2580,7 +2580,7 @@ ggsave(
 # gg_mds_chi <- gginference::ggchisqtest(mds_chis, colaccept = "green3", colreject = "red3") # It is highly unlikely that our test statistic would be observed if there were no association between survival outcome and the md score
 # gg_mds_chi
 
-# Confusion matrix for 14 compounds
+# Confusion matrix for 14 compounds: training model metrics
 km_nocovid_final2 <- km_nocovid_final %>% 
   mutate(prediction = ifelse(grouped_md_score == "Low Score", "Survivor", "Non-Survivor"))
 
@@ -3571,7 +3571,7 @@ ggs_shannon <- ggsurvplot(
   fit4,
   data = km_nocovid,
   size = 1,
-  palette = c("#C4335F", "#047D6B"),
+  palette = c("#107b1c","#C45258"),
   xlab = "Days from Admission",
   conf.int = TRUE,
   pval = TRUE,
@@ -3608,12 +3608,13 @@ ggs_shannon <- ggsurvplot(
 
 # Change table axis labels
 ggs_shannon$table <-
-  ggs_shannon$table + labs(x = NULL, y = NULL) + theme(plot.title = eb()) # risk table
+  ggs_shannon$table + labs(x = NULL, y = NULL) + 
+  theme(plot.title = eb()) # risk table
 
 ggs_shannon
 
 pdf(
-  "./Results/kaplan_meier_shannon_30_Day_Mortality_train.pdf",
+  "./cox/kaplan_meier_shannon_30_Day_Mortality_train.pdf",
   height = 4,
   width = 6,
   onefile = FALSE
@@ -3959,7 +3960,7 @@ ggplot_mds <-
     # plot.subtitle = et(color = "black", size = 79),
     panel.grid.minor = eb(),
     panel.grid.major = eb(),
-    legend.position = "none",
+    # legend.position = "none",
     plot.margin = margin(
       # Top margin
       t = 5,
@@ -4001,7 +4002,7 @@ ggplot_mds
 
 ggsave(
   plot = ggplot_mds,
-  filename = "./Results/Beta_Diversity_BrayCurtis_train.pdf",
+  filename = "./cox/Beta_Diversity_BrayCurtis_train.pdf",
   height = 14,
   width = 14,
   units = "in"
@@ -4976,7 +4977,7 @@ ggsave(
 # gg_mmp_chi <- gginference::ggchisqtest(mmp_chis, colaccept = "green3", colreject = "red3") # It is highly unlikely that our test statistic would be observed if there were no association between survival outcome and the md score
 # gg_mmp_chi
 
-# Confusion matrix for MMP Score
+# Confusion matrix for MMP Score: covid score
 
 mmp_df2 <- mmp_df %>% 
   mutate(prediction = ifelse(grouped_mmp_score == "Low MMP", "Survivor", "Non-Survivor"))
@@ -5091,7 +5092,7 @@ ggs_mmp <- ggsurvplot(
   fit_mmp,
   data = km_mmp,
   size = 1,
-  palette = c("#C45258", "#2F4858"),
+  palette = c("#C45258", "#107b1c"),
   xlab = "Days from Admission",
   conf.int = TRUE,
   pval = TRUE,
@@ -5788,7 +5789,7 @@ tableone_nocovid_df_filt_vc <- tableone_nocovid_df_filt_vc %>%
 
 # Variables labels
 cox_df_vc <- tableone_nocovid_df_filt_vc %>%
-  left_join(micu_new_nocovid_vc %>% distinct(unique_id, metabolomicsID)) %>%
+  left_join(micu_new_nocovid_vc %>% distinct(unique_id, shotgunSeq_id, metabolomicsID)) %>%
   labelled::remove_labels() %>%
   janitor::clean_names() %>%
   mutate(
