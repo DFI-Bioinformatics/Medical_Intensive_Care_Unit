@@ -358,40 +358,6 @@ maaslin2_results <-
 maaslin2_results$qval <-
   p.adjust(maaslin2_results$pval, method = "BH") # FDR correction using 'BH'
 
-
-
-# cox.zph assumption check ------------------------------------------------
-
-cox_all <- cox_df |> 
-  left_join(mmp_df |> 
-              select(metabolomicsID, mmp_score))
-
-base.chosen.cox <- coxph(
-  Surv(cox_all$surv_days, cox_all$thirtyday_mortality_overall_class) ~
-    `Charlson Comorbidity Index` +
-    `SOFA Score` +
-    # `Time to stool sample` +  # this will violate the ph assumptions
-    `Shannon Diversity` +
-    `Enterococcus Domination` +
-    mmp_score +
-    `MDS`
-    ,
-  data = cox_all
-)
-
-base.chosen.test <- cox.zph(base.chosen.cox)
-base.chosen_zph <- ggcoxzph(base.chosen.test)
-
-ggsave("Results/base.chosen.test.not2stool.pdf", arrangeGrob(grobs = base.chosen_zph),
-       height = 11.5, width = 10.5)
-
-ggcoxdiagnostics(base.chosen.cox, type = "dfbeta", linear.predictions = FALSE)
-ggsave("Results/base.chosen.test_diag_dfbeta.not2stool.pdf",height = 5.5, width = 11.5)
-
-ggcoxdiagnostics(base.chosen.cox, type = "deviance",
-                 linear.predictions = FALSE, ggtheme = theme_bw())
-ggsave("Results/base.chosen.test_diag_deviance.not2stool.pdf",height = 6.5, width = 7)
-
 # Samples in training set within 3 days of admission: CoxPH-----------------------------------------------
 
 cox_sub <- cox_df |> 
@@ -2050,6 +2016,53 @@ entero_pct_mds |>
   labs(x="MDS", y = "Enterococcus abundance")
 
 ggsave("Results/enteroc_mds.liner.pdf", height = 6.5, width = 7.5)
+
+# cox.zph assumption check ------------------------------------------------
+
+library(survminer)
+library(survival)
+library(gridExtra)
+
+cox_all <- cox_df |> 
+  select(-c(`Enterococcus Domination`,`Enterobacterales Domination`)) |> 
+  left_join(mmp_df |> 
+              select(metabolomicsID, mmp_score)) |> 
+  left_join(new_cox_df |> 
+              select(shotgunSeq_id,
+                     `Enterococcus Domination` = Enterococcus,
+                     `Enterobacterales Domination` = Enterobacterales)) |> 
+  left_join(phylo_entero |>
+              select(shotgunSeq_id, Enterobacterales, Enterococcus))
+
+base.chosen.cox <- coxph(
+  Surv(cox_all$surv_days, cox_all$thirtyday_mortality_overall_class) ~
+    `Charlson Comorbidity Index` +
+    `SOFA Score` +
+    # `Time to stool sample` +  # this will violate the ph assumptions
+    `Shannon Diversity` +
+    mmp_score +
+    `Enterococcus Domination` +
+    `Enterobacterales Domination` +
+    Enterococcus +
+    Enterobacterales +
+    `MDS`
+  ,
+  data = cox_all
+)
+
+base.chosen.test <- cox.zph(base.chosen.cox)
+base.chosen_zph <- ggcoxzph(base.chosen.test)
+
+ggsave("Results/base.chosen.test.not2stool.pdf", 
+       arrangeGrob(grobs = base.chosen_zph, ncol = 2),
+       height = 18.5, width = 10.5)
+
+ggcoxdiagnostics(base.chosen.cox, type = "dfbeta", linear.predictions = FALSE)
+ggsave("Results/base.chosen.test_diag_dfbeta.not2stool.pdf",height = 15.5, width = 14.5)
+
+ggcoxdiagnostics(base.chosen.cox, type = "deviance",
+                 linear.predictions = FALSE, ggtheme = theme_bw())
+ggsave("Results/base.chosen.test_diag_deviance.not2stool.pdf",height = 6.5, width = 7)
 
 # deltaRMST of KM curve of enterococcus and MDS in the training / validation cohort -----
 
