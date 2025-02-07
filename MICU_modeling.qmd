@@ -1,0 +1,543 @@
+---
+title: "modeling for MICU paper"
+description: "Try several ML methods for MICU paper"
+author: "Huaiying Lin"
+date: "`r Sys.Date()`"
+format: 
+  html: 
+    code-fold: true
+    toc: true
+    toc_float: true
+    toc_depth: 3
+    code_folding: hide
+    df_print: paged
+    theme: yeti
+    code-line-numbers: true
+    highlight: pygments
+    embed-resources: true
+editor_options: 
+  chunk_output_type: console
+execute: 
+  warning: false
+  echo: false
+---
+
+## Working environment setup
+```{r setwd}
+setwd("~/Documents/GitHub/Medical_Intensive_Care_Unit/")
+
+load("Data/MICU_Data_Anon.revision.RData")
+```
+
+```{r lib-load}
+library(tidyverse)
+library(caret)
+library(minerva)
+library(impute)
+library(imputeLCMD)
+
+library(patchwork)
+library(gghighlight)
+
+library(reticulate)
+use_condaenv('base')
+```
+
+```{python python-lib}
+
+import pandas as pd
+import numpy as np
+
+from sklearn.model_selection import train_test_split
+from sklearn.model_selection import RepeatedStratifiedKFold, KFold
+from sklearn.model_selection import GridSearchCV
+from skopt import BayesSearchCV
+
+from sklearn.metrics import RocCurveDisplay, auc, roc_auc_score, roc_curve, accuracy_score, mean_squared_error
+from sklearn.base import clone
+from sklearn.decomposition import PCA
+
+from xgboost import XGBRegressor
+from sklearn.svm import SVR
+
+from sklearn.linear_model import Ridge, LogisticRegression
+from sklearn.ensemble import RandomForestClassifier
+from xgboost import XGBClassifier
+
+```
+
+```{python functions-python}
+
+import numpy as np
+from scipy.stats import norm
+
+def sensitivity_and_specificity_with_confidence_intervals(TP, FP, FN, TN, alpha=0.95):
+    """Compute confidence intervals for sensitivity and specificity using Wilson's method."""
+
+    def _proportion_confidence_interval(r, n, z):
+        """Compute confidence interval for a proportion."""
+        p = r / n
+        q = 1 - p
+        lower = p - z * np.sqrt(p * q / n)
+        upper = p + z * np.sqrt(p * q / n)
+        return lower, upper
+
+    z = norm.ppf(1 - (1 - alpha) / 2)
+
+    sensitivity = TP / (TP + FN)
+    specificity = TN / (TN + FP)
+    accuracy = (TP + TN) / (TP + FP + FN + TN)
+
+    sensitivity_ci = _proportion_confidence_interval(TP, TP + FN, z)
+    specificity_ci = _proportion_confidence_interval(TN, TN + FP, z)
+    accuracy_ci = _proportion_confidence_interval(TP + TN, TP + FP + FN + TN, z)
+
+    return sensitivity, sensitivity_ci, specificity, specificity_ci, accuracy, accuracy_ci
+
+
+```
+
+## Models to try for MICU
+
++ Logistic regression
++ Random forest
++ XGBoost
+
+```{r data-load-r}
+
+## training
+metab_quant <- metab_quant_imp_tot_mM |> 
+  select(metabolomicsID, compound, mvalue__mM) |> 
+  spread(compound, mvalue__mM) 
+
+train_df <- micu_new_nocovid_oc |> 
+  select(metabolomicsID, thirtyday_mortality_overall, sofa_score_total,
+         `Charlson Comorbidity Index` = cci_total_sc) |> 
+  left_join(metab_quant)
+
+## testing
+
+test_df <- micu_new_nocovid_vc |> 
+  select(metabolomicsID, thirtyday_mortality_overall, sofa_score_total,
+         `Charlson Comorbidity Index` = cci_total_sc)|> 
+  left_join(metab_quant) 
+
+## separate train and test
+
+X_train <- train_df |> 
+  select(-c(thirtyday_mortality_overall, metabolomicsID,
+            sofa_score_total, `Charlson Comorbidity Index`))
+
+y_train <- train_df |> 
+  transmute(thirtyday_mortality_overall_num = ifelse(thirtyday_mortality_overall == "Survivor", 0, 1)) |> 
+  pull(thirtyday_mortality_overall_num)
+
+X_test <- test_df |> 
+  select(-c(thirtyday_mortality_overall, metabolomicsID,
+            sofa_score_total, `Charlson Comorbidity Index`))
+
+y_test <- test_df |> 
+  transmute(thirtyday_mortality_overall_num = ifelse(thirtyday_mortality_overall == "Survivor", 0, 1))|> 
+  pull(thirtyday_mortality_overall_num)
+
+```
+
+
+```{python py-load-data}
+
+n_repeats = 2
+n_splits = 5
+seed_value = 333
+test_proportion = 0.2
+pos_label = 1
+
+```
+
+```{python py-setup-model} 
+
+X_train = pd.DataFrame(r.X_train)
+y_train = np.array(r.y_train)
+
+X_test = pd.DataFrame(r.X_test)
+y_test = np.array(r.y_test)
+
+cv = RepeatedStratifiedKFold(n_splits = n_splits, n_repeats = n_repeats, random_state = seed_value)
+
+```
+
+### Logistic regression
+
+```{python logistic}
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import GridSearchCV
+from sklearn.metrics import roc_auc_score, accuracy_score, confusion_matrix
+import sys
+
+model = LogisticRegression(max_iter=1000000)
+
+param_grid = [    
+    {'penalty': [None],
+     'solver': ['lbfgs', 'newton-cg', 'sag', 'saga']},
+    {'penalty': ['l2'],
+     'C': [0.001, 0.01, 0.1, 1, 10, 100, 1000],
+     'solver': ['lbfgs', 'newton-cg', 'sag', 'saga']},
+    {'penalty': ['l1'],
+     'C': [0.001, 0.01, 0.1, 1, 10, 100, 1000],
+     'solver': ['liblinear', 'saga']},
+    {'penalty': ['elasticnet'],
+     'C': [0.001, 0.01, 0.1, 1, 10, 100, 1000],
+     'solver': ['saga'],
+     'l1_ratio': [0.25, 0.5, 0.75]}
+]
+
+classifier_tune = GridSearchCV(
+    model, 
+    param_grid=param_grid, 
+    cv=cv, 
+    verbose=1,
+    n_jobs=-1, 
+    scoring=['accuracy', 'roc_auc'], 
+    refit='roc_auc'
+)
+
+n_combinations = sum(np.prod([len(v) for v in d.values()]) for d in param_grid)
+total_fits = n_combinations * cv.get_n_splits()
+print(f"Total parameter combinations: {n_combinations}")
+print(f"Total fits to perform: {total_fits}")
+print("Starting grid search...")
+
+best = classifier_tune.fit(X_train, y_train)
+results = pd.DataFrame(best.cv_results_)
+best_estimator = best.best_estimator_
+
+### training set -----------
+y_pred = best.predict(X_train)
+y_pred_proba = best.predict_proba(X_train)[:, 1]
+roc_auc = roc_auc_score(y_train, y_pred_proba)
+accuracy = accuracy_score(y_train, y_pred)
+
+cm = confusion_matrix(y_train, y_pred)
+
+# Extract values from the confusion matrix
+tn, fp, fn, tp = cm.ravel()
+
+# Calculate sensitivity (recall)
+sensitivity = tp / (tp + fn)
+
+# Calculate specificity
+specificity = tn / (tn + fp)
+
+print("Confusion Matrix:")
+print(cm)
+
+sensitivity, sensitivity_ci, specificity, specificity_ci, accuracy, accuracy_ci = sensitivity_and_specificity_with_confidence_intervals(tp, fp, fn, tn)
+
+print("Sensitivity:", sensitivity)
+print("Sensitivity CI:", sensitivity_ci)
+print("Specificity:", specificity)
+print("Specificity CI:", specificity_ci)
+print("Accuracy:", accuracy)
+print("Accuracy CI:", accuracy_ci)
+
+print(f'\nBest parameters: {best.best_params_}')
+print(f'ROC AUC: {roc_auc:.3f}')
+print(f'Accuracy: {accuracy:.3f}')
+
+### test set -----------
+y_pred = best.predict(X_test)
+y_pred_proba = best.predict_proba(X_test)[:, 1]
+roc_auc = roc_auc_score(y_test, y_pred_proba)
+accuracy = accuracy_score(y_test, y_pred)
+
+cm = confusion_matrix(y_test, y_pred)
+
+# Extract values from the confusion matrix
+tn, fp, fn, tp = cm.ravel()
+
+# Calculate sensitivity (recall)
+sensitivity = tp / (tp + fn)
+
+# Calculate specificity
+specificity = tn / (tn + fp)
+
+print("Confusion Matrix:")
+print(cm)
+
+sensitivity, sensitivity_ci, specificity, specificity_ci, accuracy, accuracy_ci = sensitivity_and_specificity_with_confidence_intervals(tp, fp, fn, tn)
+
+print("Sensitivity:", sensitivity)
+print("Sensitivity CI:", sensitivity_ci)
+print("Specificity:", specificity)
+print("Specificity CI:", specificity_ci)
+print("Accuracy:", accuracy)
+print("Accuracy CI:", accuracy_ci)
+
+print(f'\nBest parameters: {best.best_params_}')
+print(f'ROC AUC: {roc_auc:.3f}')
+print(f'Accuracy: {accuracy:.3f}')
+
+```
+
+
+```{python py-log-importance}
+
+# PCA importance
+# df_importance_log = pca_logistic_feature_importance(X_train, y_train, X_test, y_test, pca, list(r.df_cols), best_estimator, pos_label=pos_label)
+
+coefficients = best_estimator.coef_[0]
+odds_ratios = np.exp(coefficients)
+
+feature_importance = pd.DataFrame({
+    'Feature': X_train.columns,
+    'Coefficient': coefficients,
+    'Odds Ratio': odds_ratios
+})
+print("\nFeature Importance (Coefficient and Odds Ratio):")
+print(feature_importance.sort_values(by='Coefficient', ascending=False))
+
+from sklearn.inspection import permutation_importance
+
+log_perm = permutation_importance(best_estimator, X_test, y_test, n_repeats = 30, random_state = seed_value, n_jobs = -1)
+
+log_perm_importance_df = pd.DataFrame({
+    'Feature': X_train.columns,
+    'Importance Mean': log_perm.importances_mean,
+    'Importance Std': log_perm.importances_std
+})
+
+print("\nPermutation Importance:")
+print(log_perm_importance_df.sort_values(by='Importance Mean', ascending=False))
+
+
+```
+
+### Random Forest
+
+```{python py-rf-model}
+
+model = RandomForestClassifier(random_state=seed_value)
+
+param_grid = {
+    'n_estimators': [500, 1000, 1500],
+    'max_depth': [None, 15, 30, 45],
+    'min_samples_split': [5, 10, 15],
+    'min_samples_leaf': [2, 4, 6],
+    'max_features': ['sqrt', 'log2', 0.3],
+    'bootstrap': [True],
+    'class_weight': ['balanced']
+}
+
+classifier_tune = GridSearchCV(
+    model, 
+    param_grid=param_grid, 
+    cv=cv, 
+    verbose=1,
+    n_jobs=-1, 
+    scoring=['accuracy', 'roc_auc'], 
+    refit='roc_auc'
+)
+
+n_combinations = np.prod([len(v) for v in param_grid.values()])
+total_fits = n_combinations * cv.get_n_splits()
+print(f"Total parameter combinations: {n_combinations}")
+print(f"Total fits to perform: {total_fits}")
+print("Starting grid search...")
+
+best = classifier_tune.fit(X_train, y_train)
+results = pd.DataFrame(best.cv_results_)
+best_estimator = best.best_estimator_
+
+### training set -----------
+y_pred = best.predict(X_train)
+y_pred_proba = best.predict_proba(X_train)[:, 1]
+roc_auc = roc_auc_score(y_train, y_pred_proba)
+accuracy = accuracy_score(y_train, y_pred)
+
+cm = confusion_matrix(y_train, y_pred)
+
+# Extract values from the confusion matrix
+tn, fp, fn, tp = cm.ravel()
+
+# Calculate sensitivity (recall)
+sensitivity = tp / (tp + fn)
+
+# Calculate specificity
+specificity = tn / (tn + fp)
+
+print("Confusion Matrix:")
+print(cm)
+
+sensitivity, sensitivity_ci, specificity, specificity_ci, accuracy, accuracy_ci = sensitivity_and_specificity_with_confidence_intervals(tp, fp, fn, tn)
+
+print("Sensitivity:", sensitivity)
+print("Sensitivity CI:", sensitivity_ci)
+print("Specificity:", specificity)
+print("Specificity CI:", specificity_ci)
+print("Accuracy:", accuracy)
+print("Accuracy CI:", accuracy_ci)
+
+print(f'\nBest parameters: {best.best_params_}')
+print(f'ROC AUC: {roc_auc:.3f}')
+print(f'Accuracy: {accuracy:.3f}')
+
+### test set ------------
+y_pred = best.predict(X_test)
+y_pred_proba = best.predict_proba(X_test)[:, 1]
+roc_auc = roc_auc_score(y_test, y_pred_proba)
+accuracy = accuracy_score(y_test, y_pred)
+
+cm = confusion_matrix(y_test, y_pred)
+
+# Extract values from the confusion matrix
+tn, fp, fn, tp = cm.ravel()
+
+# Calculate sensitivity (recall)
+sensitivity = tp / (tp + fn)
+
+# Calculate specificity
+specificity = tn / (tn + fp)
+
+print("Confusion Matrix:")
+print(cm)
+
+sensitivity, sensitivity_ci, specificity, specificity_ci, accuracy, accuracy_ci = sensitivity_and_specificity_with_confidence_intervals(tp, fp, fn, tn)
+
+print("Sensitivity:", sensitivity)
+print("Sensitivity CI:", sensitivity_ci)
+print("Specificity:", specificity)
+print("Specificity CI:", specificity_ci)
+print("Accuracy:", accuracy)
+print("Accuracy CI:", accuracy_ci)
+
+print(f'\nBest parameters: {best.best_params_}')
+print(f'ROC AUC: {roc_auc:.3f}')
+print(f'Accuracy: {accuracy:.3f}')
+```
+
+#### Random Forest Gini Importance
+```{python py-rf-geni}
+
+rf_importances = best_estimator.feature_importances_
+rf_features = best_estimator.feature_names_in_
+
+```
+
+```{r rf-geni-plt}
+
+rf_imp_r <- tibble(feature = py$rf_features, 
+       imp = py$rf_importances)
+
+ggplot(data = rf_imp_r, aes(imp, reorder(feature,imp))) +
+  geom_col(color = "black", fill = "skyblue") +
+  theme_bw() +
+  labs( x = "Gini Importance",
+        y = "Metabolites")
+
+ggsave("Results/rf_gini_imp.pdf", height = 6.5, width = 7)
+
+```
+
+
+### XGBoost
+
+```{python py-xgb-model}
+
+model = XGBClassifier(random_state=seed_value, eval_metric=['logloss', 'auc', 'error'], objective = "binary:logistic")
+
+
+# simpler grid
+param_grid = {
+    'n_estimators': [500, 1000],
+    'max_depth': [2, 4, 6],
+    'learning_rate': [0.01, 0.1],
+    'min_child_weight': [1, 3],
+    'colsample_bytree': [0.8],
+    'subsample': [0.8]
+}
+
+classifier_tune = GridSearchCV(
+    model,
+    param_grid=param_grid,
+    cv=cv,
+    verbose=2,
+    n_jobs=-1,
+    scoring=['accuracy', 'roc_auc'],
+    refit='roc_auc'
+)
+
+n_combinations = np.prod([len(v) for v in param_grid.values()])
+total_fits = n_combinations * cv.get_n_splits()
+print(f"Total parameter combinations: {n_combinations}")
+print(f"Total fits to perform: {total_fits}")
+print("Starting grid search...")
+
+best = classifier_tune.fit(X_train, y_train)
+results = pd.DataFrame(best.cv_results_)
+best_estimator = best.best_estimator_
+
+### training set model stats
+
+oc_auc = roc_auc_score(y_train, y_pred_proba)
+accuracy = accuracy_score(y_train, y_pred)
+
+cm = confusion_matrix(y_train, y_pred)
+
+# Extract values from the confusion matrix
+tn, fp, fn, tp = cm.ravel()
+
+# Calculate sensitivity (recall)
+sensitivity = tp / (tp + fn)
+
+# Calculate specificity
+specificity = tn / (tn + fp)
+
+print("Confusion Matrix:")
+print(cm)
+
+sensitivity, sensitivity_ci, specificity, specificity_ci, accuracy, accuracy_ci = sensitivity_and_specificity_with_confidence_intervals(tp, fp, fn, tn)
+
+print("Sensitivity:", sensitivity)
+print("Sensitivity CI:", sensitivity_ci)
+print("Specificity:", specificity)
+print("Specificity CI:", specificity_ci)
+print("Accuracy:", accuracy)
+print("Accuracy CI:", accuracy_ci)
+
+print(f'\nBest parameters: {best.best_params_}')
+print(f'ROC AUC: {roc_auc:.3f}')
+print(f'Accuracy: {accuracy:.3f}')
+
+### test set model stats
+y_pred = best.predict(X_test)
+y_pred_proba = best.predict_proba(X_test)[:, 1]
+roc_auc = roc_auc_score(y_test, y_pred_proba)
+accuracy = accuracy_score(y_test, y_pred)
+
+cm = confusion_matrix(y_test, y_pred)
+
+# Extract values from the confusion matrix
+tn, fp, fn, tp = cm.ravel()
+
+# Calculate sensitivity (recall)
+sensitivity = tp / (tp + fn)
+
+# Calculate specificity
+specificity = tn / (tn + fp)
+
+print("Confusion Matrix:")
+print(cm)
+
+sensitivity, sensitivity_ci, specificity, specificity_ci, accuracy, accuracy_ci = sensitivity_and_specificity_with_confidence_intervals(tp, fp, fn, tn)
+
+print("Sensitivity:", sensitivity)
+print("Sensitivity CI:", sensitivity_ci)
+print("Specificity:", specificity)
+print("Specificity CI:", specificity_ci)
+print("Accuracy:", accuracy)
+print("Accuracy CI:", accuracy_ci)
+
+print(f'\nBest parameters: {best.best_params_}')
+print(f'ROC AUC: {roc_auc:.3f}')
+print(f'Accuracy: {accuracy:.3f}')
+
+```
