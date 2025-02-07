@@ -27,7 +27,7 @@ Results Folder Results - Contains all produced figures from the analysis
 
 To download the data there are two options available.
 
-Option A) Download the zipped file at: [https://zenodo.org/doi/10.5281/zenodo.11660451](https://zenodo.org/records/12707359)
+Option A) Download the zipped file at: [https://zenodo.org/doi/10.5281/zenodo.11660451](https://zenodo.org/records/11660451)
 
 Option B) Enable Git Large File Storage:
 
