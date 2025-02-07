@@ -2040,11 +2040,12 @@ base.chosen.cox <- coxph(
     `SOFA Score` +
     # `Time to stool sample` +  # this will violate the ph assumptions
     `Shannon Diversity` +
-    mmp_score +
-    `Enterococcus Domination` +
-    `Enterobacterales Domination` +
+    shannon_class +
     Enterococcus +
+    `Enterococcus Domination` +
     Enterobacterales +
+    `Enterobacterales Domination` +
+    mmp_score +
     `MDS`
   ,
   data = cox_all
