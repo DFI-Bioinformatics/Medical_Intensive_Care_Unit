@@ -953,7 +953,7 @@ gg_ecoc_rel_abd <- phylo_rel_abd %>%
   stat_compare_means(
     comparisons = list(c("Survivor", "Non-Survivor")),
     tip.length = 0.01,
-    symnum.args = symnum.args,
+    # symnum.args = symnum.args,
     method.args = list(
       alternative = "two.sided",
       exact = FALSE
@@ -1031,7 +1031,7 @@ gg_ebac_rel_abd <- phylo_rel_abd %>%
   stat_compare_means(
     comparisons = list(c("Survivor", "Non-Survivor")),
     tip.length = 0.01,
-    symnum.args = symnum.args,
+    # symnum.args = symnum.args,
     method.args = list(
       alternative = "two.sided",
       exact = FALSE
@@ -3761,7 +3761,7 @@ coxauc <-
       `MDS`,
     data = cox_df
   ) %>%
-  tbl_regression(
+  gtsummary::tbl_regression(
     exp = TRUE,
     pvalue_fun = function(x) {
       if_else(is.na(x), NA_character_, if_else(
@@ -3775,7 +3775,7 @@ coxauc <-
       ))
     }
   ) %>%
-  modify_footnote(everything() ~ NA, abbreviation = TRUE)
+  gtsummary::modify_footnote(everything() ~ NA, abbreviation = TRUE)
 
 
 coxauc %>%
@@ -3787,7 +3787,7 @@ coxauc %>%
 
 gt::gtsave(gtsummary::as_gt(coxauc), file = "cox/cox_model_SOFA_30_Day_Mortality_roc_loop_train.png")
 
-# Enterococcus Domination
+# Enterococcus Domination: as Yes/No
 coxauc_ecoc <-
   coxph(
     Surv(cox_df$surv_days, cox_df$thirtyday_mortality_overall_class) ~
@@ -3815,7 +3815,7 @@ coxauc_ecoc <-
 coxauc_ecoc %>%
   gtsummary::modify_caption("**Cox Proportional Hazards Regression**")
 
-gt::gtsave(gtsummary::as_gt(coxauc_ecoc), file = "./cox/cox_model_SOFA_Enterococcus_30_Day_Mortality_train.png")
+gt::gtsave(gtsummary::as_gt(coxauc_ecoc), file = "./Results/cox_model_SOFA_Enterococcus_30_Day_Mortality_train.png")
 
 # Enterococcus Domination
 coxauc_ebac <-
