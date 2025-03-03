@@ -144,7 +144,7 @@ use_condaenv("/Users/nick/miniconda3/bin/python")
 ## Load Data Image
 ```{r, load-data-image, eval=FALSE}
 # R image
-load("./Data/MICU_Data_Anon.RData")
+load("./Data/MICU_Data_Anon.revision.RData")
 ```
 
 ## Load Data
@@ -2577,6 +2577,15 @@ ggsave(
   width = 8
 )
 
+km_nocovid_final |> 
+  group_by(thirtyday_mortality_overall) |> 
+  summarise(mean = mean(md_score),
+            sd = sd(md_score))
+
+stats::wilcox.test(
+    km_nocovid_final$md_score ~ km_nocovid_final$thirtyday_mortality_overall
+  )
+
 # gg_mds_chi <- gginference::ggchisqtest(mds_chis, colaccept = "green3", colreject = "red3") # It is highly unlikely that our test statistic would be observed if there were no association between survival outcome and the md score
 # gg_mds_chi
 
@@ -3787,6 +3796,10 @@ coxauc %>%
 
 gt::gtsave(gtsummary::as_gt(coxauc), file = "cox/cox_model_SOFA_30_Day_Mortality_roc_loop_train.png")
 
+cox_df <- cox_df |> 
+  mutate(`Enterococcus Domination` =
+           factor(`Enterococcus Domination`, levels = c("No Enterococcus Domination", "Enterococcous Domination")))
+
 # Enterococcus Domination: as Yes/No
 coxauc_ecoc <-
   coxph(
@@ -3796,7 +3809,7 @@ coxauc_ecoc <-
       `Enterococcus Domination`,
     data = cox_df
   ) %>%
-  tbl_regression(
+  gtsummary::tbl_regression(
     exp = TRUE,
     pvalue_fun = function(x) {
       if_else(is.na(x), NA_character_, if_else(
@@ -3810,7 +3823,7 @@ coxauc_ecoc <-
       ))
     }
   ) %>%
-  modify_footnote(everything() ~ NA, abbreviation = TRUE)
+  gtsummary::modify_footnote(everything() ~ NA, abbreviation = TRUE)
 
 coxauc_ecoc %>%
   gtsummary::modify_caption("**Cox Proportional Hazards Regression**")
@@ -5492,6 +5505,15 @@ ggsave(
   height = 6,
   width = 8
 )
+
+km_nocovid_vc |> 
+  group_by(thirtyday_mortality_overall) |> 
+  summarise(mean = mean(md_score),
+            sd = sd(md_score))
+
+stats::wilcox.test(
+    km_nocovid_vc$md_score ~ km_nocovid_vc$thirtyday_mortality_overall
+  )
 
 # gg_mds_chi_vc <- gginference::ggchisqtest(mds_chis_vc, colaccept = "green3", colreject = "red3") # It is highly unlikely that our test statistic would be observed if there were no association between survival outcome and the md score
 # gg_mds_chi_vc

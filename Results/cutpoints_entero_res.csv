@@ -1,3 +1,0 @@
-organism,optimal_cutpoint,direction,method,youden,acc,sensitivity,specificity,AUC,pos_class,neg_class,prevalence,outcome,predictor,data,roc_curve,boot
-Enterobacterales,0.07527228044121409,<=,maximize_metric,0.17647058823529416,0.6870748299319728,0.8431372549019608,0.3333333333333333,0.5352941176470588,0,1,0.6938775510204082,thirtyday_mortality_overall_class,pctseqs,,,
-Enterococcus,0.0012195953129247037,<=,maximize_metric,0.3764705882352941,0.6190476190476191,0.5098039215686274,0.8666666666666667,0.6842047930283224,0,1,0.6938775510204082,thirtyday_mortality_overall_class,pctseqs,,,
